@@ -1,44 +1,164 @@
 const express = require("express");
 const cors = require("cors");
-const mongoose=require("mongoose");
-const Complaint = require("./models/Complaint");
+const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
-mongoose.connect("mongodb://127.0.0.1:27017/campusSafetyDB")
-.then(()=>{
-    console.log("mongoDb connected");
-})
-.catch((err)=>{
-    console.log(err);
-});
+const Complaint = require("./models/Complaint");
+const User = require("./models/User");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("Backend running");
+const JWT_SECRET = "supersecretkey";
+
+/* ==========================
+   DATABASE CONNECTION
+========================== */
+
+mongoose.connect("mongodb://127.0.0.1:27017/campusSafetyDB")
+.then(()=> console.log("MongoDB Connected"))
+.catch(err => console.log(err));
+
+
+
+/* ==========================
+   REGISTER USER
+========================== */
+
+app.post("/register", async (req,res)=>{
+
+  try{
+
+    const {username,password,role} = req.body;
+
+    const hashedPassword = await bcrypt.hash(password,10);
+
+    const user = new User({
+      username,
+      password: hashedPassword,
+      role
+    });
+
+    await user.save();
+
+    res.json({
+      message:"User registered successfully"
+    });
+
+  }catch(err){
+
+    res.status(500).json({
+      message:"Registration failed"
+    });
+
+  }
+
 });
 
-app.post("/complaints", async (req, res) => {
 
-  const { title, description, category } = req.body;
 
-  const newComplaint = new Complaint({
+/* ==========================
+   LOGIN USER
+========================== */
+
+app.post("/login", async (req,res)=>{
+
+  const {username,password} = req.body;
+
+  const user = await User.findOne({username});
+
+  if(!user){
+    return res.status(401).json({
+      message:"User not found"
+    });
+  }
+
+  const validPassword = await bcrypt.compare(password,user.password);
+
+  if(!validPassword){
+    return res.status(401).json({
+      message:"Invalid password"
+    });
+  }
+
+  const token = jwt.sign(
+    {id:user._id,role:user.role},
+    JWT_SECRET,
+    {expiresIn:"2h"}
+  );
+
+  res.json({
+    token,
+    role:user.role,
+    message:"Login successful"
+  });
+
+});
+
+
+
+/* ==========================
+   AUTH MIDDLEWARE
+========================== */
+
+function authenticateToken(req,res,next){
+
+  const authHeader = req.headers["authorization"];
+
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if(!token){
+    return res.status(403).json({message:"Token required"});
+  }
+
+  jwt.verify(token,JWT_SECRET,(err,user)=>{
+
+    if(err){
+      return res.status(403).json({message:"Invalid token"});
+    }
+
+    req.user = user;
+
+    next();
+
+  });
+
+}
+
+
+
+/* ==========================
+   CREATE COMPLAINT
+========================== */
+
+app.post("/complaints", authenticateToken , async (req,res)=>{
+
+  const {title,description,category} = req.body;
+
+  const complaint = new Complaint({
     title,
     description,
     category
   });
 
-  await newComplaint.save();
+  await complaint.save();
 
   res.json({
-    message: "Complaint saved to database"
+    message:"Complaint saved"
   });
 
 });
 
-app.get("/complaints", async (req, res) => {
+
+
+/* ==========================
+   GET COMPLAINTS
+========================== */
+
+app.get("/complaints", authenticateToken , async (req,res)=>{
 
   const complaints = await Complaint.find();
 
@@ -46,28 +166,50 @@ app.get("/complaints", async (req, res) => {
 
 });
 
-app.patch("/complaints/:id", async (req, res) => {
-  const { id } = req.params;
 
-  await Complaint.findByIdAndUpdate(id, { status: "Solved" });
 
-  res.json({ message: "Complaint marked as solved" });
+/* ==========================
+   MARK SOLVED
+========================== */
+
+app.patch("/complaints/:id", authenticateToken , async (req,res)=>{
+
+  const {id} = req.params;
+
+  await Complaint.findByIdAndUpdate(id,{status:"Solved"});
+
+  res.json({
+    message:"Complaint marked solved"
+  });
+
 });
 
-app.patch("/complaints/:id/update", async (req, res) => {
 
-  const { title, description } = req.body;
+
+/* ==========================
+   UPDATE COMPLAINT
+========================== */
+
+app.patch("/complaints/:id/update", authenticateToken , async (req,res)=>{
+
+  const {title,description} = req.body;
 
   const updatedComplaint = await Complaint.findByIdAndUpdate(
     req.params.id,
-    { title, description },
-    { new: true }
+    {title,description},
+    {new:true}
   );
 
   res.json(updatedComplaint);
 
 });
 
-app.listen(5000, () => {
+
+
+/* ==========================
+   SERVER START
+========================== */
+
+app.listen(5000,()=>{
   console.log("Server running on port 5000");
 });
