@@ -22,11 +22,12 @@ app.get("/", (req, res) => {
 
 app.post("/complaints", async (req, res) => {
 
-  const { title, description } = req.body;
+  const { title, description, category } = req.body;
 
   const newComplaint = new Complaint({
     title,
-    description
+    description,
+    category
   });
 
   await newComplaint.save();
