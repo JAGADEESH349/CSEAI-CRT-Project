@@ -1,3 +1,4 @@
+
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -14,6 +15,7 @@ app.use(express.json());
 
 const JWT_SECRET = "supersecretkey";
 
+
 /* ==========================
    DATABASE CONNECTION
 ========================== */
@@ -21,7 +23,6 @@ const JWT_SECRET = "supersecretkey";
 mongoose.connect("mongodb://127.0.0.1:27017/campusSafetyDB")
 .then(()=> console.log("MongoDB Connected"))
 .catch(err => console.log(err));
-
 
 
 /* ==========================
@@ -32,7 +33,9 @@ app.post("/register", async (req,res)=>{
 
   try{
 
-    const {username,password,role} = req.body;
+    let {username,password,role} = req.body;
+
+    username = username.trim();
 
     const hashedPassword = await bcrypt.hash(password,10);
 
@@ -50,6 +53,8 @@ app.post("/register", async (req,res)=>{
 
   }catch(err){
 
+    console.log(err);
+
     res.status(500).json({
       message:"Registration failed"
     });
@@ -59,16 +64,18 @@ app.post("/register", async (req,res)=>{
 });
 
 
-
 /* ==========================
    LOGIN USER
 ========================== */
-
 app.post("/login", async (req,res)=>{
 
   const {username,password} = req.body;
 
-  const user = await User.findOne({username});
+  console.log("LOGIN REQUEST:", username, password);
+
+  const user = await User.findOne({ username });
+
+  console.log("USER FOUND:", user);
 
   if(!user){
     return res.status(401).json({
@@ -77,6 +84,8 @@ app.post("/login", async (req,res)=>{
   }
 
   const validPassword = await bcrypt.compare(password,user.password);
+
+  console.log("PASSWORD MATCH:", validPassword);
 
   if(!validPassword){
     return res.status(401).json({
@@ -97,8 +106,6 @@ app.post("/login", async (req,res)=>{
   });
 
 });
-
-
 
 /* ==========================
    AUTH MIDDLEWARE
@@ -129,7 +136,6 @@ function authenticateToken(req,res,next){
 }
 
 
-
 /* ==========================
    CREATE COMPLAINT
 ========================== */
@@ -141,7 +147,8 @@ app.post("/complaints", authenticateToken , async (req,res)=>{
   const complaint = new Complaint({
     title,
     description,
-    category
+    category,
+    studentId: req.user.id
   });
 
   await complaint.save();
@@ -153,19 +160,28 @@ app.post("/complaints", authenticateToken , async (req,res)=>{
 });
 
 
-
 /* ==========================
    GET COMPLAINTS
 ========================== */
 
 app.get("/complaints", authenticateToken , async (req,res)=>{
 
+  // student → only their complaints
+  if(req.user.role === "student"){
+
+    const complaints = await Complaint.find({
+      studentId:req.user.id
+    });
+
+    return res.json(complaints);
+  }
+
+  // police → all complaints
   const complaints = await Complaint.find();
 
   res.json(complaints);
 
 });
-
 
 
 /* ==========================
@@ -183,7 +199,6 @@ app.patch("/complaints/:id", authenticateToken , async (req,res)=>{
   });
 
 });
-
 
 
 /* ==========================
@@ -205,7 +220,6 @@ app.patch("/complaints/:id/update", authenticateToken , async (req,res)=>{
 });
 
 
-
 /* ==========================
    SERVER START
 ========================== */
@@ -213,3 +227,4 @@ app.patch("/complaints/:id/update", authenticateToken , async (req,res)=>{
 app.listen(5000,()=>{
   console.log("Server running on port 5000");
 });
+
