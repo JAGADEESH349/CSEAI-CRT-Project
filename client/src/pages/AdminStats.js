@@ -94,7 +94,7 @@ function AdminStats() {
           <div className="row g-4 mb-4">
 
             {/* Bar Chart */}
-            <div className="col-lg-6">
+            <div className="col-lg-5">
               <div className="panel-card">
                 <div className="panel-header">
                   <span>📊</span>
@@ -116,7 +116,7 @@ function AdminStats() {
             </div>
 
             {/* Pie Chart */}
-            <div className="col-lg-3">
+            <div className="col-lg-4">
               <div className="panel-card">
                 <div className="panel-header">
                   <span>🥧</span>
@@ -128,8 +128,8 @@ function AdminStats() {
                       data={pieData}
                       cx="50%"
                       cy="50%"
-                      innerRadius={60}
-                      outerRadius={90}
+                      innerRadius={50}
+                      outerRadius={80}
                       dataKey="value"
                       label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                       labelLine={false}
@@ -153,7 +153,7 @@ function AdminStats() {
                 </div>
                 <ResponsiveContainer width="100%" height={260}>
                   <BarChart data={categoryData} layout="vertical" margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+                    <CartesianGrid strokeDasharray="4 4" stroke="#E2E8F0" />
                     <XAxis type="number" tick={{ fontSize: 11 }} />
                     <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} width={70} />
                     <Tooltip />
