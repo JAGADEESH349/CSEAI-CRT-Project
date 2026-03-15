@@ -7,6 +7,7 @@ const jwt = require("jsonwebtoken");
 
 const Complaint = require("./models/Complaint");
 const User = require("./models/User");
+const Team = require("./models/Team");
 
 const app = express();
 
@@ -219,7 +220,13 @@ app.patch("/complaints/:id/update", authenticateToken , async (req,res)=>{
 
 });
 
-
+/* ==========================
+   GET TEAM MEMBERS
+========================== */
+app.get("/team", async (req, res) => {
+  const team = await Team.find().sort({ order: 1 });
+  res.json(team);
+});
 /* ==========================
    SERVER START
 ========================== */
