@@ -1,0 +1,83 @@
+/* ===== Reset box sizing ===== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* ===== Prevent horizontal scrolling ===== */
+
+html, body {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* ===== Ensure images and media don't overflow ===== */
+
+img, video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ===== Main page containers ===== */
+
+.container,
+.container-fluid,
+.mycomplaints-container,
+.dashboard-page {
+  width: 100%;
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+}
+
+/* ===== Grid for complaints ===== */
+
+.mycomplaints-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+/* ===== Complaint cards ===== */
+
+.complaint-card {
+  width: 100%;
+  background: white;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+  transition: 0.2s ease;
+}
+
+.complaint-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+}
+
+/* ===== Ensure text does not overflow ===== */
+
+.complaint-description p {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* ===== Form inputs stay inside container ===== */
+
+input,
+textarea,
+select,
+button {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* ===== Bootstrap row fix ===== */
+
+.row {
+  margin-left: 0;
+  margin-right: 0;
+}
