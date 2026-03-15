@@ -24,34 +24,26 @@ function Login() {
   ========================= */
 
   const handleLogin = async (e) => {
-
     e.preventDefault();
-
     try {
-
       const response = await axios.post(
         "http://localhost:5000/login",
-        {
-          username,
-          password
-        }
+        { username, password }
       );
 
+      // SAVE BOTH TOKEN AND ROLE
       localStorage.setItem("token", response.data.token);
+      localStorage.setItem("role", response.data.role); // <--- ADD THIS LINE HERE
 
       if(response.data.role === "police"){
-  navigate("/admin");
-} else {
-  navigate("/student");
-}
-
+        navigate("/admin");
+      } else {
+        navigate("/student");
+      }
     } 
     catch(error) {
-
       setError("Invalid username or password");
-
     }
-
   };
 
 
