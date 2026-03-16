@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import StudentNavbar from "./components/StudentNavbar";
 import AdminNavbar from "./components/AdminNavbar";
+import StudentFooter from "./components/StudentFooter";
+import AdminFooter from "./components/AdminFooter";
 import Login from "./pages/Login";
 import StudentDashboard from "./pages/StudentDashboard";
 import ComplaintForm from "./pages/ComplaintForm";
@@ -16,32 +18,41 @@ function Layout() {
   const location = useLocation();
   const path = location.pathname;
 
-  const renderNavbar = () => {
-    if (path === "/") return null;
-    if (path.startsWith("/admin")) return <AdminNavbar />;
-    return <StudentNavbar />;
-  };
+  const isLogin  = path === "/";
+  const isAdmin  = path.startsWith("/admin");
+  const isStudent = !isLogin && !isAdmin;
 
   return (
-    <>
-      {renderNavbar()}
-      <Routes>
-        <Route path="/" element={<Login />} />
+    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
 
-        {/* Student Routes */}
-        <Route path="/student" element={<StudentDashboard />} />
-        <Route path="/submit" element={<CategorySelect />} />
-        <Route path="/submit/:category" element={<ComplaintForm />} />
-        <Route path="/my-complaints" element={<MyComplaints />} />
-        <Route path="/about" element={<StudentAboutUs />} />
+      {/* Navbar */}
+      {!isLogin && (isAdmin ? <AdminNavbar /> : <StudentNavbar />)}
 
-        {/* Admin Routes */}
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/complaints" element={<AdminComplaints />} />
-        <Route path="/admin/stats" element={<AdminStats />} />
-        <Route path="/admin/about" element={<AboutUs />} />
-      </Routes>
-    </>
+      {/* Page content grows to fill available space */}
+      <div style={{ flex: 1 }}>
+        <Routes>
+          <Route path="/" element={<Login />} />
+
+          {/* Student Routes */}
+          <Route path="/student"           element={<StudentDashboard />} />
+          <Route path="/submit"            element={<CategorySelect />} />
+          <Route path="/submit/:category"  element={<ComplaintForm />} />
+          <Route path="/my-complaints"     element={<MyComplaints />} />
+          <Route path="/about"             element={<StudentAboutUs />} />
+
+          {/* Admin Routes */}
+          <Route path="/admin"             element={<AdminDashboard />} />
+          <Route path="/admin/complaints"  element={<AdminComplaints />} />
+          <Route path="/admin/stats"       element={<AdminStats />} />
+          <Route path="/admin/about"       element={<AboutUs />} />
+        </Routes>
+      </div>
+
+      {/* Footer — only shown when logged in */}
+      {isAdmin  && <AdminFooter />}
+      {isStudent && <StudentFooter />}
+
+    </div>
   );
 }
 
