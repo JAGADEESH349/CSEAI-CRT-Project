@@ -38,8 +38,10 @@ mongoose.connect("mongodb://127.0.0.1:27017/campusSafetyDB")
 ========================== */
 app.post("/register", async (req, res) => {
   try {
-    let { username, password, role } = req.body;
+    let { username, password } = req.body;
     username = username.trim();
+    // Role is ALWAYS forced to "student" — police accounts are seeded/admin-created only
+    const role = "student";
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({ username, password: hashedPassword, role });
     await user.save();
@@ -77,6 +79,15 @@ function authenticateToken(req, res, next) {
   });
 }
 
+function authorizeRole(...allowedRoles) {
+  return (req, res, next) => {
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ message: "Access denied: insufficient role" });
+    }
+    next();
+  };
+}
+
 /* ==========================
    CREATE COMPLAINT
 ========================== */
@@ -106,18 +117,17 @@ app.get("/complaints", authenticateToken, async (req, res) => {
 });
 
 /* ==========================
-   MARK SOLVED
+   MARK SOLVED  (police only)
 ========================== */
-app.patch("/complaints/:id", authenticateToken, async (req, res) => {
+app.patch("/complaints/:id", authenticateToken, authorizeRole("police"), async (req, res) => {
   await Complaint.findByIdAndUpdate(req.params.id, { status: "Solved" });
   res.json({ message: "Complaint marked solved" });
 });
 
 /* ==========================
-   UPDATE COMPLAINT
-   FIX: Removed duplicate route — only one definition kept
+   UPDATE COMPLAINT  (police only)
 ========================== */
-app.patch("/complaints/:id/update", authenticateToken, async (req, res) => {
+app.patch("/complaints/:id/update", authenticateToken, authorizeRole("police"), async (req, res) => {
   try {
     const updated = await Complaint.findByIdAndUpdate(
       req.params.id,
