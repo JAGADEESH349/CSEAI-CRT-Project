@@ -1,233 +1,249 @@
-/* ===============================
-   PAGE BACKGROUND
-================================ */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(40px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-20px); }
+}
+
+@keyframes blobMove1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%       { transform: translate(30px, -20px) scale(1.05); }
+}
+
+@keyframes blobMove2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%       { transform: translate(-20px, 30px) scale(1.08); }
+}
+
+@keyframes blobMove3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%       { transform: translate(20px, 20px) scale(1.04); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+/* ==============================
+   PAGE
+================================ */
 .login-container {
-
-    min-height: 100vh;
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: center;
-
-    background: linear-gradient(135deg, #0b1f4d, #1e3a8a);
-
-    padding: 20px;
-
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Poppins', sans-serif;
+  background-image: url('../../public/loginbg.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
 }
 
+.login-container::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(1px);
+  z-index: 0;
+}
 
-/* ===============================
-   LOGIN CARD
+/* remove blobs — not needed with real bg */
+.blob { display: none; }
+/* ==============================
+   CLAY CARD
 ================================ */
-
-.login-card {
-
-    width: 380px;
-
-    background: white;
-
-    padding: 35px;
-
-    border-radius: 14px;
-
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
-
-    transition: 0.3s;
-
+.clay-card {
+  position: relative;
+  z-index: 1;
+  width: 420px;
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 44px 40px;
+  border-radius: 32px;
+  box-shadow:
+    0 8px 0 rgba(0,0,0,0.08),
+    0 20px 60px rgba(0,0,0,0.15),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+  animation: fadeSlide 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  border: 1.5px solid rgba(255,255,255,0.8);
 }
 
-.login-card:hover {
-
-    transform: translateY(-5px);
-
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
-
-}
-
-
-/* ===============================
-   HEADER
+/* ==============================
+   ICON
 ================================ */
-
-.login-header {
-
-    text-align: center;
-
-    margin-bottom: 20px;
-
+.clay-icon-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
 }
 
-.portal-title {
-
-    margin-top: 10px;
-
-    font-weight: 700;
-
-    color: #1e3a8a;
-
+.clay-icon {
+  font-size: 48px;
+  color: #065f46;
+  filter: drop-shadow(0 4px 8px rgba(16,185,129,0.3));
+  animation: float 3s ease-in-out infinite;
 }
 
-
-/* ===============================
-   WELCOME CARD
+/* ==============================
+   TEXT
 ================================ */
-
-.welcome-card {
-
-    background: #eef2ff;
-
-    padding: 12px;
-
-    border-left: 4px solid #2563eb;
-
-    border-radius: 6px;
-
-    margin-bottom: 20px;
-
-    font-size: 14px;
-
+.clay-title {
+  text-align: center;
+  font-weight: 700;
+  font-size: 24px;
+  color: #1f2937;
+  margin: 0 0 6px;
 }
 
+.clay-subtitle {
+  text-align: center;
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0 0 24px;
+}
 
-/* ===============================
+/* ==============================
    INPUTS
 ================================ */
-
-.login-input {
-
-    width: 100%;
-
-    padding: 12px;
-
-    margin-bottom: 12px;
-
-    border-radius: 8px;
-
-    border: 1px solid #ccc;
-
-    font-size: 14px;
-
-    transition: 0.25s;
-
+.clay-input-wrap {
+  position: relative;
+  margin-bottom: 16px;
 }
 
-.login-input:focus {
-
-    border-color: #2563eb;
-
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-
-    outline: none;
-
+.clay-input-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-size: 15px;
 }
 
+.clay-input {
+  width: 100%;
+  padding: 14px 16px 14px 44px;
+  border-radius: 16px;
+  border: 1.5px solid rgba(0,0,0,0.08);
+  background: rgba(255,255,255,0.7);
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+  color: #1f2937;
+  outline: none;
+  transition: all 0.25s;
+  box-shadow:
+    0 4px 0 rgba(0,0,0,0.06),
+    inset 0 1px 3px rgba(0,0,0,0.05);
+  appearance: none;
+}
 
-/* ===============================
+.clay-input:focus {
+  border-color: #10b981;
+  background: rgba(255,255,255,0.95);
+  box-shadow:
+    0 4px 0 rgba(16,185,129,0.15),
+    0 0 0 3px rgba(16,185,129,0.1);
+}
+
+.clay-input::placeholder { color: #9ca3af; }
+
+/* ==============================
    BUTTON
 ================================ */
-
-.login-btn {
-
-    width: 100%;
-
-    padding: 12px;
-
-    border: none;
-
-    border-radius: 8px;
-
-    background: #1e3a8a;
-
-    color: white;
-
-    font-weight: 600;
-
-    cursor: pointer;
-
-    transition: 0.25s;
-
+.clay-btn {
+  width: 100%;
+  padding: 14px;
+  margin-top: 8px;
+  border: none;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #065f46, #10b981);
+  color: white;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.25s;
+  box-shadow:
+    0 6px 0 rgba(6,95,70,0.4),
+    0 12px 20px rgba(16,185,129,0.3);
+  position: relative;
+  overflow: hidden;
 }
 
-.login-btn:hover {
-
-    background: #162c6a;
-
-    transform: scale(1.02);
-
+.clay-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 0 rgba(6,95,70,0.4),
+    0 16px 28px rgba(16,185,129,0.35);
 }
 
+.clay-btn:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 3px 0 rgba(6,95,70,0.4),
+    0 6px 12px rgba(16,185,129,0.2);
+}
 
-/* ===============================
-   ERROR MESSAGE
+.clay-btn::after {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  animation: shimmer 2s infinite;
+}
+
+/* ==============================
+   MESSAGES
 ================================ */
-
-.login-error {
-
-    background: #fee2e2;
-
-    color: #b91c1c;
-
-    padding: 10px;
-
-    border-radius: 6px;
-
-    text-align: center;
-
-    margin-bottom: 10px;
-
+.clay-error {
+  background: rgba(254,226,226,0.8);
+  color: #b91c1c;
+  padding: 10px 14px;
+  border-radius: 12px;
+  text-align: center;
+  margin-bottom: 14px;
+  font-size: 13px;
+  border: 1px solid rgba(185,28,28,0.1);
 }
 
+.clay-success {
+  background: rgba(209,250,229,0.8);
+  color: #065f46;
+  padding: 10px 14px;
+  border-radius: 12px;
+  text-align: center;
+  margin-bottom: 14px;
+  font-size: 13px;
+  border: 1px solid rgba(6,95,70,0.1);
+}
 
-/* ===============================
-   SUCCESS MESSAGE
+/* ==============================
+   TOGGLE
 ================================ */
-
-.login-success {
-
-    background: #dcfce7;
-
-    color: #047857;
-
-    padding: 10px;
-
-    border-radius: 6px;
-
-    text-align: center;
-
-    margin-bottom: 10px;
-
+.clay-toggle {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 13px;
+  color: #6b7280;
 }
 
-
-/* ===============================
-   SWITCH LINK
-================================ */
-
-.switch-text {
-
-    text-align: center;
-
-    margin-top: 10px;
-
-    font-size: 14px;
-
+.clay-toggle-link {
+  color: #065f46;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
-.switch-link {
-
-    color: #2563eb;
-
-    cursor: pointer;
-
-    font-weight: 600;
-
-}
-
-.switch-link:hover {
-
-    text-decoration: underline;
-
-}
+.clay-toggle-link:hover { text-decoration: underline; }

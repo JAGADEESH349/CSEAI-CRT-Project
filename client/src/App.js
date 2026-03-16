@@ -8,36 +8,36 @@ import MyComplaints from "./pages/MyComplaints";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminComplaints from "./pages/AdminComplaints";
 import AdminStats from "./pages/AdminStats";
-import AboutUs from "./pages/AboutUs"; 
+import AboutUs from "./pages/AboutUs";
+import CategorySelect from "./pages/CategorySelect";
 
 function Layout() {
   const location = useLocation();
   const path = location.pathname;
 
   const renderNavbar = () => {
-  if (path === "/") return null;
-  if (path.startsWith("/admin")) return <AdminNavbar />; 
-  return <StudentNavbar />;
-};
+    if (path === "/") return null;
+    if (path.startsWith("/admin")) return <AdminNavbar />;
+    return <StudentNavbar />;
+  };
 
   return (
     <>
       {renderNavbar()}
       <Routes>
         <Route path="/" element={<Login />} />
-        
+
         {/* Student Routes */}
         <Route path="/student" element={<StudentDashboard />} />
-        <Route path="/submit" element={<ComplaintForm />} />
+        <Route path="/submit" element={<CategorySelect />} />
+        <Route path="/submit/:category" element={<ComplaintForm />} />
         <Route path="/my-complaints" element={<MyComplaints />} />
-        
+        <Route path="/about" element={<AboutUs />} />
+
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/complaints" element={<AdminComplaints />} />
         <Route path="/admin/stats" element={<AdminStats />} />
-        
-        {/* FIXED: Path is now prefixed with /admin */}
-        <Route path="/admin/about" element={<AboutUs />} />
       </Routes>
     </>
   );

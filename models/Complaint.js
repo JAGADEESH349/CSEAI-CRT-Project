@@ -1,25 +1,50 @@
 const mongoose = require("mongoose");
 
 const ComplaintSchema = new mongoose.Schema(
-{
-  title: String,
-
-  description: String,
-
-  category: String,
-
-  studentId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User"
+  {
+    category: { type: String, required: true },
+    status: { type: String, default: "Pending" },
+    studentId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    studentName: String,
+    rollNumber: String,
+    department: String,
+    phoneNumber: String,
+    title: String,
+    description: String,
+    incidentDate: String,
+    incidentLocation: String,
+    witnessDetails: String,
+    evidencePath: String,
+    itemStolen: String,
+    itemDescription: String,
+    estimatedValue: String,
+    cyberCrimeType: String,
+    platform: String,
+    suspectUsername: String,
+    accusedName: String,
+    injuryDetails: String,
+    harassmentType: String,
+    fraudType: String,
+    suspectContact: String,
+    amountLost: String,
+    transactionId: String,
+    drugActivityType: String,
+    suspectDescription: String,
+    missingPersonName: String,
+    missingPersonAge: String,
+    missingPersonGender: String,
+    lastSeenDate: String,
+    lastSeenLocation: String,
+    clothingDescription: String,
+    accidentDate: String,
+    accidentTime: String,
+    vehicleNumber: String,
+    driverName: String,
+    stalkingType: String,
+    stalkingPlatform: String,
+    stalkingSuspect: String,
   },
-
-  status: {
-    type: String,
-    default: "Pending"
-  }
-  
-},
-{ timestamps: true }
+  { timestamps: true }
 );
 
 module.exports = mongoose.model("Complaint", ComplaintSchema);

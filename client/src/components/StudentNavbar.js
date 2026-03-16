@@ -22,30 +22,49 @@ function StudentNavbar() {
   };
 
   return (
-    <div style={{ background: "#1e3a8a", color: "white", boxShadow: "0 4px 12px rgba(0,0,0,0.3)" }}>
-
+    <div style={{
+      background: "#065f46",
+      color: "white",
+      boxShadow: "0 4px 12px rgba(6,95,70,0.3)",
+      position: "sticky",
+      top: 0,
+      zIndex: 1000
+    }}>
       {/* Top bar */}
       <div style={{
         display: "grid",
         gridTemplateColumns: "1fr auto 1fr",
         alignItems: "center",
         height: "64px",
-        padding: "0 24px"
+        padding: "0 24px",
+        borderBottom: "1px solid rgba(255,255,255,0.15)"
       }}>
-
-        {/* Left - empty for balance */}
         <div />
-
-        {/* Center - Logo + Title */}
         <div className="d-flex align-items-center" style={{ gap: "10px" }}>
-          <FaShieldAlt size={26} style={{ color: "#fbbf24" }} />
+          <FaShieldAlt size={26} style={{ color: "#6ee7b7" }} />
           <span style={{ fontWeight: "700", fontSize: "18px", letterSpacing: "0.5px" }}>
             Campus Safety Connect
           </span>
         </div>
-
-        {/* Right - Logout */}
-        <div className="d-flex justify-content-end">
+        <div className="d-flex justify-content-end align-items-center" style={{ gap: "10px" }}>
+          <button
+            onClick={() => navigate("/about")}
+            style={{
+              background: "transparent",
+              color: "white",
+              border: "1px solid rgba(255,255,255,0.5)",
+              borderRadius: "6px",
+              padding: "6px 16px",
+              fontWeight: "500",
+              cursor: "pointer",
+              fontSize: "14px",
+              transition: "all 0.2s"
+            }}
+            onMouseEnter={e => { e.target.style.background = "rgba(255,255,255,0.15)"; }}
+            onMouseLeave={e => { e.target.style.background = "transparent"; }}
+          >
+            About Us
+          </button>
           <button
             onClick={() => {
               localStorage.removeItem("token");
@@ -53,39 +72,40 @@ function StudentNavbar() {
               navigate("/");
             }}
             style={{
-              background: "#fbbf24",
-              color: "#1e3a8a",
+              background: "#6ee7b7",
+              color: "#065f46",
               border: "none",
               borderRadius: "6px",
               padding: "6px 16px",
-              fontWeight: "600",
+              fontWeight: "700",
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
-              gap: "6px"
+              gap: "6px",
+              fontSize: "14px"
             }}
           >
             <FaSignOutAlt /> Logout
           </button>
         </div>
-
       </div>
 
-      {/* Nav links - centered */}
+      {/* Nav links */}
       <div style={{
-        background: "#1e40af",
+        background: "#047857",
         display: "flex",
         justifyContent: "center",
         gap: "4px",
-        padding: "6px 24px"
+        padding: "6px 24px",
+        borderBottom: "2px solid rgba(255,255,255,0.1)"
       }}>
         {navLinks.map((link) => (
           <button
             key={link.path}
             onClick={() => navigate(link.path)}
             style={{
-              background: isActive(link.path) ? "#fbbf24" : "transparent",
-              color: isActive(link.path) ? "#1e3a8a" : "white",
+              background: isActive(link.path) ? "#6ee7b7" : "transparent",
+              color: isActive(link.path) ? "#065f46" : "rgba(255,255,255,0.85)",
               border: "none",
               borderRadius: "6px",
               padding: "6px 18px",
@@ -99,7 +119,6 @@ function StudentNavbar() {
           </button>
         ))}
       </div>
-
     </div>
   );
 }

@@ -1,251 +1,142 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { FaShieldAlt, FaUserPlus, FaStar } from "react-icons/fa";
+import { FaShieldAlt, FaUser, FaLock, FaUserPlus, FaUserShield } from "react-icons/fa";
 import "../styles/loginpage.css";
 
 function Login() {
-
   const navigate = useNavigate();
-
   const [isRegister, setIsRegister] = useState(false);
-
-  const [username,setUsername] = useState("");
-  const [password,setPassword] = useState("");
-  const [role,setRole] = useState("student");
-
-  const [error,setError] = useState("");
-  const [message,setMessage] = useState("");
-
-
-  /* =========================
-     LOGIN
-  ========================= */
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("student");
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
     try {
-      const response = await axios.post(
-        "http://localhost:5000/login",
-        { username, password }
-      );
-
-      // SAVE BOTH TOKEN AND ROLE
+      const response = await axios.post("http://localhost:5000/login", { username, password });
       localStorage.setItem("token", response.data.token);
-      localStorage.setItem("role", response.data.role); // <--- ADD THIS LINE HERE
-
-      if(response.data.role === "police"){
-        navigate("/admin");
-      } else {
-        navigate("/student");
-      }
-    } 
-    catch(error) {
+      localStorage.setItem("role", response.data.role);
+      if (response.data.role === "police") navigate("/admin");
+      else navigate("/student");
+    } catch(error) {
       setError("Invalid username or password");
     }
   };
 
-
-  /* =========================
-     REGISTER
-  ========================= */
-
   const handleRegister = async (e) => {
-
     e.preventDefault();
-
-    setError("");
-    setMessage("");
-
-    if(!username || !password){
-      setError("Please fill all fields");
-      return;
-    }
-
-    try{
-
-      await axios.post(
-        "http://localhost:5000/register",
-        {
-          username,
-          password,
-          role
-        }
-      );
-
-      setMessage("Registration successful. Please login.");
-
+    setError(""); setMessage("");
+    if (!username || !password) { setError("Please fill all fields"); return; }
+    try {
+      await axios.post("http://localhost:5000/register", { username, password, role });
+      setMessage("Registration successful! Please login.");
       setIsRegister(false);
-      setUsername("");
-      setPassword("");
-      setRole("student");
-
-    }
-    catch(err){
-
+      setUsername(""); setPassword(""); setRole("student");
+    } catch(err) {
       setError(err.response?.data?.message || "Registration failed");
-
     }
-
   };
-
 
   const toggleMode = () => {
-
     setIsRegister(!isRegister);
-    setError("");
-    setMessage("");
-    setUsername("");
-    setPassword("");
-    setRole("student");
-
+    setError(""); setMessage("");
+    setUsername(""); setPassword(""); setRole("student");
   };
 
-
   return (
-
     <div className="login-container">
 
-      <div className="login-card">
+      {/* Floating blobs */}
+      <div className="blob blob-1" />
+      <div className="blob blob-2" />
+      <div className="blob blob-3" />
 
-        <div className="login-header">
+      <div className="clay-card">
 
-          {!isRegister && (
-            <div style={{textAlign:"center"}}>
-              <div style={{display:"flex",justifyContent:"center",gap:"5px",marginBottom:"6px"}}>
-                <FaStar size={14} color="#facc15"/>
-                <FaStar size={14} color="#facc15"/>
-                <FaStar size={14} color="#facc15"/>
-              </div>
+        {/* Icon */}
+        <div className="clay-icon-wrap">
+          {isRegister
+            ? <FaUserPlus className="clay-icon" />
+            : <FaShieldAlt className="clay-icon" />
+          }
+        </div>
 
-              <FaShieldAlt size={48} color="#1e3a8a"/>
+        <h2 className="clay-title">
+          {isRegister ? "Create Account" : "Welcome to Login"}
+        </h2>
+        <p className="clay-subtitle">
+          {isRegister
+            ? "Register to access the student portal"
+            : "Enter your credentials to continue"
+          }
+        </p>
+
+        {error && <div className="clay-error">{error}</div>}
+        {message && <div className="clay-success">{message}</div>}
+
+        <form onSubmit={isRegister ? handleRegister : handleLogin}>
+
+          {/* Username */}
+          <div className="clay-input-wrap">
+            <FaUser className="clay-input-icon" />
+            <input
+              type="text"
+              placeholder="Enter your username"
+              className="clay-input"
+              value={username}
+              required
+              onChange={e => setUsername(e.target.value)}
+            />
+          </div>
+
+          {/* Password */}
+          <div className="clay-input-wrap">
+            <FaLock className="clay-input-icon" />
+            <input
+              type="password"
+              placeholder="Enter your password"
+              className="clay-input"
+              value={password}
+              required
+              onChange={e => setPassword(e.target.value)}
+            />
+          </div>
+
+          {/* Role select — register only */}
+          {isRegister && (
+            <div className="clay-input-wrap">
+              <FaUserShield className="clay-input-icon" />
+              <select
+                className="clay-input"
+                value={role}
+                onChange={e => setRole(e.target.value)}
+              >
+                <option value="student">Student</option>
+                <option value="police">Police</option>
+              </select>
             </div>
           )}
 
-          {isRegister && (
-            <FaUserPlus size={48} color="#1e3a8a"/>
-          )}
+          <button type="submit" className="clay-btn">
+            {isRegister ? "Register" : "Sign In"}
+          </button>
 
-          <h3 className="portal-title">
-            {isRegister ? "Create Account" : "Student-Police Portal"}
-          </h3>
+        </form>
 
-        </div>
-
-
-        {error && (
-          <p style={{color:"red",textAlign:"center"}}>
-            {error}
-          </p>
-        )}
-
-        {message && (
-          <p style={{color:"green",textAlign:"center"}}>
-            {message}
-          </p>
-        )}
-
-
-        {/* LOGIN FORM */}
-
-        {!isRegister && (
-
-          <form onSubmit={handleLogin}>
-
-            <input
-              type="text"
-              placeholder="Username"
-              className="login-input"
-              value={username}
-              required
-              onChange={(e)=>setUsername(e.target.value)}
-            />
-
-            <input
-              type="password"
-              placeholder="Password"
-              className="login-input"
-              value={password}
-              required
-              onChange={(e)=>setPassword(e.target.value)}
-            />
-
-            <button className="login-btn">
-              Login
-            </button>
-
-          </form>
-
-        )}
-
-
-        {/* REGISTER FORM */}
-
-        {isRegister && (
-
-          <form onSubmit={handleRegister}>
-
-            <input
-              type="text"
-              placeholder="Username"
-              className="login-input"
-              value={username}
-              required
-              onChange={(e)=>setUsername(e.target.value)}
-            />
-
-            <input
-              type="password"
-              placeholder="Password"
-              className="login-input"
-              value={password}
-              required
-              onChange={(e)=>setPassword(e.target.value)}
-            />
-
-            <select
-              className="login-input"
-              value={role}
-              onChange={(e)=>setRole(e.target.value)}
-            >
-              <option value="student">Student</option>
-              <option value="police">Police</option>
-            </select>
-
-            <button className="login-btn">
-              Register
-            </button>
-
-          </form>
-
-        )}
-
-
-        {/* TOGGLE BUTTON */}
-
-        <p style={{textAlign:"center",marginTop:"10px"}}>
-
+        <p className="clay-toggle">
           {isRegister ? "Already have an account?" : "New user?"}
-
-          <span
-            style={{color:"#1e3a8a",cursor:"pointer",marginLeft:"5px"}}
-            onClick={toggleMode}
-          >
-
-            {isRegister ? "Login here" : "Register here"}
-
+          <span className="clay-toggle-link" onClick={toggleMode}>
+            {isRegister ? " Login here" : " Register here"}
           </span>
-
         </p>
 
       </div>
-
     </div>
-
   );
-
 }
 
 export default Login;
-
