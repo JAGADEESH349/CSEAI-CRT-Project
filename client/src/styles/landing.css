@@ -6,20 +6,20 @@
   justify-content: center;
   align-items: center;
   font-family: 'Poppins', sans-serif;
+  background-color: #0a1628;
   background-image: url('../../public/campus-bg.svg');
   background-size: cover;
   background-position: center;
-  background-attachment: fixed;
+  background-attachment: scroll;
   padding: 20px;
   position: relative;
   overflow: hidden;
 }
 
 .landing-overlay {
-  position: fixed;
+  position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(2px);
   z-index: 0;
 }
 
@@ -35,6 +35,32 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ======== PROJECT TITLE & TAGLINE ======== */
+.landing-project-title {
+  font-size: 42px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -1px;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 24px rgba(0,0,0,0.4);
+}
+
+.landing-tagline {
+  font-size: 15px;
+  color: rgba(255,255,255,0.75);
+  max-width: 480px;
+  margin: 0 auto 20px;
+  line-height: 1.6;
+}
+
+.landing-divider-line {
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #10b981, #34d399);
+  border-radius: 10px;
+  margin: 0 auto 24px;
+}
+
 .landing-badge {
   display: inline-block;
   background: rgba(255,255,255,0.15);
@@ -48,15 +74,6 @@
   border-radius: 100px;
   margin-bottom: 20px;
   backdrop-filter: blur(10px);
-}
-
-.landing-title {
-  font-size: 52px;
-  font-weight: 800;
-  color: #fff;
-  margin: 0 0 8px;
-  line-height: 1.1;
-  text-shadow: 0 2px 20px rgba(0,0,0,0.3);
 }
 
 .landing-sub {
@@ -96,43 +113,32 @@
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   position: relative;
   overflow: hidden;
-  backdrop-filter: blur(16px);
-}
-
-.portal-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 0.3s;
 }
 
 .portal-card:hover {
   transform: translateY(-8px) scale(1.03);
 }
 
-.portal-card:hover::before { opacity: 1; }
-
 /* Student card */
 .student-card {
-  background: rgba(4, 40, 20, 0.55);
+  background: linear-gradient(135deg, #042814, #065f46) !important;
   box-shadow: 0 8px 32px rgba(16,185,129,0.25), inset 0 1px 0 rgba(255,255,255,0.08);
   border-color: rgba(52, 211, 153, 0.25);
 }
 .student-card:hover {
-  background: rgba(4, 55, 28, 0.7);
+  background: linear-gradient(135deg, #04371c, #077a59) !important;
   box-shadow: 0 20px 50px rgba(16,185,129,0.4), inset 0 1px 0 rgba(255,255,255,0.12);
   border-color: rgba(52, 211, 153, 0.55);
 }
 
 /* Police card */
 .police-card {
-  background: rgba(30, 64, 175, 0.35);
+  background: linear-gradient(135deg, #1e3a8a, #2563eb) !important;
   box-shadow: 0 8px 32px rgba(37,99,235,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
   border-color: rgba(96,165,250,0.3);
 }
 .police-card:hover {
-  background: rgba(30, 64, 175, 0.55);
+  background: linear-gradient(135deg, #1e40af, #3b82f6) !important;
   box-shadow: 0 20px 50px rgba(37,99,235,0.5), inset 0 1px 0 rgba(255,255,255,0.3);
   border-color: rgba(96,165,250,0.6);
 }
@@ -158,16 +164,8 @@
   box-shadow: 0 6px 16px rgba(59,130,246,0.4);
 }
 
-.portal-icon {
-  font-size: 28px;
-  color: #fff;
-}
-
-.portal-label {
-  font-size: 20px;
-  font-weight: 700;
-  color: #fff;
-}
+.portal-icon  { font-size: 28px; color: #fff; }
+.portal-label { font-size: 20px; font-weight: 700; color: #fff; }
 
 .portal-desc {
   font-size: 12px;

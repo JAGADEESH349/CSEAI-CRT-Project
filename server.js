@@ -10,6 +10,7 @@ const path = require("path");
 const Complaint = require("./models/Complaint");
 const User = require("./models/User");
 const Team = require("./models/Team");
+const PoliceWhitelist = require("./models/PoliceWhitelist");
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
+const POLICE_ACCESS_CODE = process.env.POLICE_ACCESS_CODE || "CAMPUS-POLICE-2025";
 
 // Multer setup
 const storage = multer.diskStorage({
@@ -56,11 +58,25 @@ app.post("/register", async (req, res) => {
    LOGIN USER
 ========================== */
 app.post("/login", async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, accessCode } = req.body;
   const user = await User.findOne({ username });
-  if (!user) return res.status(401).json({ message: "User not found" });
+  if (!user) return res.status(401).json({ message: "Invalid credentials" });
   const validPassword = await bcrypt.compare(password, user.password);
-  if (!validPassword) return res.status(401).json({ message: "Invalid password" });
+  if (!validPassword) return res.status(401).json({ message: "Invalid credentials" });
+
+  // Extra security checks for police role
+  if (user.role === "police") {
+    // Check 1: access code must match
+    if (!accessCode || accessCode !== POLICE_ACCESS_CODE) {
+      return res.status(403).json({ message: "Unauthorized officer credentials" });
+    }
+    // Check 2: username must be in whitelist
+    const whitelisted = await PoliceWhitelist.findOne({ username });
+    if (!whitelisted) {
+      return res.status(403).json({ message: "Unauthorized officer credentials" });
+    }
+  }
+
   const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: "2h" });
   res.json({ token, role: user.role, message: "Login successful" });
 });

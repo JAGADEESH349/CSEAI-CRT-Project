@@ -9,8 +9,10 @@ function Landing() {
       <div className="landing-overlay" />
 
       <div className="landing-content">
-        <div className="landing-badge">Campus Safety Connect</div>
-        <h1 className="landing-title">Who are you?</h1>
+        <div className="landing-project-title">Campus Safety Connect</div>
+        <p className="landing-tagline">A smart platform to report, track and resolve campus safety incidents in real-time.</p>
+        <div className="landing-divider-line" />
+        <div className="landing-badge">Who are you?</div>
         <p className="landing-sub">Select your portal to continue</p>
 
         <div className="landing-cards">
