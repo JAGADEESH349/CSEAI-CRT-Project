@@ -9,6 +9,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminComplaints from "./pages/AdminComplaints";
 import AdminStats from "./pages/AdminStats";
 import AboutUs from "./pages/AboutUs";
+import StudentAboutUs from "./pages/StudentAboutUs";
 import CategorySelect from "./pages/CategorySelect";
 
 function Layout() {
@@ -32,12 +33,13 @@ function Layout() {
         <Route path="/submit" element={<CategorySelect />} />
         <Route path="/submit/:category" element={<ComplaintForm />} />
         <Route path="/my-complaints" element={<MyComplaints />} />
-        <Route path="/about" element={<AboutUs />} />
+        <Route path="/about" element={<StudentAboutUs />} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/complaints" element={<AdminComplaints />} />
         <Route path="/admin/stats" element={<AdminStats />} />
+        <Route path="/admin/about" element={<AboutUs />} />
       </Routes>
     </>
   );

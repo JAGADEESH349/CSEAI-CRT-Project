@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // Added for security redirect
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaEnvelope, FaShieldAlt, FaCode, FaPaintBrush, FaServer, FaDatabase, FaBug, FaUser, FaUserTie } from "react-icons/fa";
 import "../styles/about.css";
@@ -21,26 +21,23 @@ function AboutUs() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // 1. Get the role from localStorage
     const role = localStorage.getItem("role");
-    
-    // 2. CHECK FOR "police" (Matches your Login.js logic)
+
+    // Admin only — redirect non-police back to login
     if (role !== "police") {
-      alert("Access Denied: Police Portal only.");
-      navigate("/"); 
+      navigate("/");
       return;
     }
 
-    // 3. FETCH DATA
     axios.get("http://localhost:5000/team")
-    .then(res => {
-      setTeam(res.data);
-      setLoading(false);
-    })
-    .catch(err => {
-      console.error("API Error:", err);
-      setLoading(false);
-    });
+      .then(res => {
+        setTeam(res.data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("API Error:", err);
+        setLoading(false);
+      });
   }, [navigate]);
 
   return (
@@ -65,7 +62,7 @@ function AboutUs() {
         </div>
 
         <div className="about-section-title">👥 Development & Management Team</div>
-        
+
         {loading ? (
           <p style={{ color: "#94A3B8", textAlign: "center" }}>Loading secure team data...</p>
         ) : team.length === 0 ? (

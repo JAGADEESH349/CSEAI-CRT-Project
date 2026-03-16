@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -16,7 +17,7 @@ app.use(cors());
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 
-const JWT_SECRET = "supersecretkey";
+const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
 
 // Multer setup
 const storage = multer.diskStorage({
@@ -114,15 +115,20 @@ app.patch("/complaints/:id", authenticateToken, async (req, res) => {
 
 /* ==========================
    UPDATE COMPLAINT
+   FIX: Removed duplicate route — only one definition kept
 ========================== */
 app.patch("/complaints/:id/update", authenticateToken, async (req, res) => {
-  const { title, description } = req.body;
-  const updated = await Complaint.findByIdAndUpdate(
-    req.params.id,
-    { title, description },
-    { new: true }
-  );
-  res.json(updated);
+  try {
+    const updated = await Complaint.findByIdAndUpdate(
+      req.params.id,
+      { ...req.body },
+      { new: true }
+    );
+    res.json(updated);
+  } catch(err) {
+    console.log(err);
+    res.status(500).json({ message: "Failed to update complaint" });
+  }
 });
 
 /* ==========================
@@ -133,14 +139,6 @@ app.get("/team", async (req, res) => {
   res.json(team);
 });
 
-app.patch("/complaints/:id/update", authenticateToken, async (req, res) => {
-  const updatedComplaint = await Complaint.findByIdAndUpdate(
-    req.params.id,
-    { ...req.body },
-    { new: true }
-  );
-  res.json(updatedComplaint);
-});
 /* ==========================
    SERVER START
 ========================== */

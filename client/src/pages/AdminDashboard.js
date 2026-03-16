@@ -35,15 +35,16 @@ function AdminDashboard() {
     );
   };
 
+  // FIX: Use optional chaining c.title?.toLowerCase() to prevent crash when title is undefined
   const pending = complaints.filter(c =>
     c.status === "Pending" &&
-    (c.title.toLowerCase().includes(search.toLowerCase()) ||
+    (c.title?.toLowerCase().includes(search.toLowerCase()) ||
      c.category?.toLowerCase().includes(search.toLowerCase()))
   );
 
   const solved = complaints.filter(c =>
     c.status === "Solved" &&
-    (c.title.toLowerCase().includes(search.toLowerCase()) ||
+    (c.title?.toLowerCase().includes(search.toLowerCase()) ||
      c.category?.toLowerCase().includes(search.toLowerCase()))
   );
 
@@ -123,7 +124,7 @@ function AdminDashboard() {
               <div key={c._id} className="col">
                 <div className="card complaint-card h-100">
                   <div className="card-body">
-                    <div className="complaint-title-box">{c.title}</div>
+                    <div className="complaint-title-box">{c.title || c.category}</div>
                     <p className="card-text">{c.description}</p>
                     <p><b>Category:</b> {c.category}</p>
                     <p><b>Submitted:</b> {c.createdAt ? new Date(c.createdAt).toLocaleString() : "N/A"}</p>
@@ -153,7 +154,7 @@ function AdminDashboard() {
               <div key={c._id} className="col">
                 <div className="card complaint-card solved h-100">
                   <div className="card-body">
-                    <div className="complaint-title-box">{c.title}</div>
+                    <div className="complaint-title-box">{c.title || c.category}</div>
                     <p className="card-text">{c.description}</p>
                     <p><b>Category:</b> {c.category}</p>
                     <p><b>Submitted:</b> {c.createdAt ? new Date(c.createdAt).toLocaleString() : "N/A"}</p>

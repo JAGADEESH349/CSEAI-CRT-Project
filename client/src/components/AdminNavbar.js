@@ -48,23 +48,23 @@ function AdminNavbar() {
         </div>
 
         <div className="d-flex justify-content-end align-items-center" style={{ gap: "10px" }}>
-          
-            <button
-            onClick={() => navigate("/admin/about")} // Change this from "/about"
+          {/* Points to /admin/about — admin-only route */}
+          <button
+            onClick={() => navigate("/admin/about")}
             style={{
-                background: "transparent",
-                color: "white",
-                border: "1px solid rgba(255,255,255,0.5)",
-                borderRadius: "6px",
-                padding: "6px 16px",
-                fontWeight: "500",
-                cursor: "pointer",
-                fontSize: "14px",
-                transition: "all 0.2s"
+              background: "transparent",
+              color: "white",
+              border: "1px solid rgba(255,255,255,0.5)",
+              borderRadius: "6px",
+              padding: "6px 16px",
+              fontWeight: "500",
+              cursor: "pointer",
+              fontSize: "14px",
+              transition: "all 0.2s"
             }}
-            >
+          >
             About Us
-            </button>
+          </button>
           <button
             onClick={() => {
               localStorage.clear();

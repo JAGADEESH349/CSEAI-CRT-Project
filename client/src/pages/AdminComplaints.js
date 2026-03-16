@@ -161,7 +161,7 @@ function AdminComplaints() {
                       {expanded === c._id ? "▲ Hide Details" : "▼ View Full Details"}
                     </button>
 
-                    {/* Full Details */}
+                    {/* Full Details — FIX: Added missing closing </div> for expanded block */}
                     {expanded === c._id && (
                       <div style={{
                         background: "#f8fafc", borderRadius: "10px",
@@ -178,19 +178,23 @@ function AdminComplaints() {
                             <span style={{ color: "#1f2937", textAlign: "right", maxWidth: "55%" }}>{value}</span>
                           </div>
                         ))}
+
+                        {/* FIX: Added missing <a tag */}
                         {c.evidencePath && (
-  
-    href={`http://localhost:5000/uploads/${c.evidencePath}`}
-    target="_blank"
-    rel="noreferrer"
-    style={{
-      display: "block", marginTop: "8px",
-      color: "#1d4ed8", fontSize: "12px", fontWeight: "600"
-    }}
-  >
-    📎 View Evidence
-  </a>
-)}
+                          <a
+                            href={`http://localhost:5000/uploads/${c.evidencePath}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{
+                              display: "block", marginTop: "8px",
+                              color: "#1d4ed8", fontSize: "12px", fontWeight: "600"
+                            }}
+                          >
+                            📎 View Evidence
+                          </a>
+                        )}
+                      </div>
+                    )}
 
                     {/* Submitted */}
                     <p style={{ fontSize: "11px", color: "#9ca3af", margin: "0 0 10px" }}>
