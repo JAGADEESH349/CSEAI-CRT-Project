@@ -50,7 +50,6 @@ function Login() {
   return (
     <div className="login-container">
 
-      {/* Floating blobs */}
       <div className="blob blob-1" />
       <div className="blob blob-2" />
       <div className="blob blob-3" />
@@ -65,17 +64,20 @@ function Login() {
           }
         </div>
 
+        {/* Title */}
         <h2 className="clay-title">
-          {isRegister ? "Create Account" : "Welcome to Login"}
+          {isRegister ? "Create Account" : "Welcome to Campus Safety Connect"}
         </h2>
-        <p className="clay-subtitle">
+
+        {/* Subtitle */}
+        <h3 className="clay-subtitle">
           {isRegister
             ? "Register to access the student portal"
-            : "Enter your credentials to continue"
+            : "Please login here"
           }
-        </p>
+        </h3>
 
-        {error && <div className="clay-error">{error}</div>}
+        {error   && <div className="clay-error">{error}</div>}
         {message && <div className="clay-success">{message}</div>}
 
         <form onSubmit={isRegister ? handleRegister : handleLogin}>

@@ -101,14 +101,15 @@
 .clay-title {
   text-align: center;
   font-weight: 700;
-  font-size: 24px;
+  font-size: 20px;
   color: #1f2937;
   margin: 0 0 6px;
+  line-height: 1.35;
 }
 
 .clay-subtitle {
   text-align: center;
-  font-size: 13px;
+  font-size: 17px;
   color: #6b7280;
   margin: 0 0 24px;
 }
