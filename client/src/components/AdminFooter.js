@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { FaUserShield, FaEnvelope, FaPhoneAlt, FaMapMarkerAlt, FaHeart, FaArrowUp, FaChartBar, FaClipboardList, FaCheckCircle, FaLock } from "react-icons/fa";
+import { FaUserShield, FaEnvelope, FaPhoneAlt, FaMapMarkerAlt, FaHeart, FaChartBar, FaClipboardList, FaCheckCircle, FaLock } from "react-icons/fa";
 
 function AdminFooter() {
   const navigate = useNavigate();

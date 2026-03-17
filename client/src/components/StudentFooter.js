@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { FaShieldAlt, FaEnvelope, FaPhoneAlt, FaMapMarkerAlt, FaGithub, FaHeart, FaArrowUp } from "react-icons/fa";
+import { FaShieldAlt, FaEnvelope, FaPhoneAlt, FaMapMarkerAlt, FaHeart, FaArrowUp } from "react-icons/fa";
 
 function StudentFooter() {
   const navigate = useNavigate();
