@@ -15,6 +15,7 @@ const PoliceWhitelist = require("./models/PoliceWhitelist");
 
 const app = express();
 
+// Auto-create uploads folder if missing
 if (!fs.existsSync("uploads")) {
   fs.mkdirSync("uploads");
   console.log("Created uploads/ directory");
@@ -50,13 +51,16 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
   .catch(err => console.log(err));
 
-/* REGISTER */
+/* ==========================
+   REGISTER
+========================== */
 app.post("/register", async (req, res) => {
   try {
     const rawUsername = req.body.username;
     const rawPassword = req.body.password;
     const rawRollNo   = req.body.rollNo;
 
+    // Validate all fields present
     if (!rawUsername || !rawPassword || !rawRollNo)
       return res.status(400).json({ message: "Username, Roll Number and password are required" });
 
@@ -71,7 +75,7 @@ app.post("/register", async (req, res) => {
     if (password.length < 6)
       return res.status(400).json({ message: "Password must be at least 6 characters" });
 
-    // ✅ Check rollNo uniqueness manually for a clear error message
+    // Check rollNo uniqueness
     const existing = await User.findOne({ rollNo });
     if (existing)
       return res.status(409).json({ message: "An account with this Roll Number already exists." });
@@ -86,7 +90,9 @@ app.post("/register", async (req, res) => {
   }
 });
 
-/* LOGIN */
+/* ==========================
+   LOGIN
+========================== */
 app.post("/login", async (req, res) => {
   try {
     const rawUsername = req.body.username;
@@ -99,7 +105,7 @@ app.post("/login", async (req, res) => {
     const input    = String(rawUsername).trim();
     const password = String(rawPassword);
 
-    // ✅ Find by rollNo first (students), fallback to username (police)
+    // Find by rollNo first (students), fallback to username (police)
     let user = await User.findOne({ rollNo: input.toUpperCase() });
     if (!user) user = await User.findOne({ username: input });
     if (!user) return res.status(401).json({ message: "Invalid credentials" });
@@ -123,7 +129,9 @@ app.post("/login", async (req, res) => {
   }
 });
 
-/* AUTH MIDDLEWARE */
+/* ==========================
+   AUTH MIDDLEWARE
+========================== */
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
@@ -143,7 +151,9 @@ function authorizeRole(...allowedRoles) {
   };
 }
 
-/* COMPLAINTS - Create */
+/* ==========================
+   COMPLAINTS - Create
+========================== */
 app.post("/complaints", authenticateToken, upload.single("evidence"), async (req, res) => {
   try {
     const data = { ...req.body, studentId: req.user.id };
@@ -157,7 +167,9 @@ app.post("/complaints", authenticateToken, upload.single("evidence"), async (req
   }
 });
 
-/* COMPLAINTS - Get */
+/* ==========================
+   COMPLAINTS - Get
+========================== */
 app.get("/complaints", authenticateToken, async (req, res) => {
   try {
     if (req.user.role === "student") {
@@ -171,7 +183,9 @@ app.get("/complaints", authenticateToken, async (req, res) => {
   }
 });
 
-/* COMPLAINTS - Mark Solved (police only) */
+/* ==========================
+   COMPLAINTS - Mark Solved (police only)
+========================== */
 app.patch("/complaints/:id", authenticateToken, authorizeRole("police"), async (req, res) => {
   try {
     await Complaint.findByIdAndUpdate(req.params.id, { status: "Solved" });
@@ -181,14 +195,19 @@ app.patch("/complaints/:id", authenticateToken, authorizeRole("police"), async (
   }
 });
 
-/* COMPLAINTS - Student edit own complaint */
+/* ==========================
+   COMPLAINTS - Student edit own
+========================== */
 app.patch("/complaints/:id/student-update", authenticateToken, authorizeRole("student"), async (req, res) => {
   try {
     const complaint = await Complaint.findOne({ _id: req.params.id, studentId: req.user.id });
     if (!complaint)
       return res.status(403).json({ message: "Not authorized to edit this complaint" });
 
-    const allowedFields = ["title","description","incidentLocation","incidentDate","phoneNumber","witnessDetails","accusedName","injuryDetails"];
+    const allowedFields = [
+      "title", "description", "incidentLocation", "incidentDate",
+      "phoneNumber", "witnessDetails", "accusedName", "injuryDetails"
+    ];
     const update = {};
     allowedFields.forEach(f => { if (req.body[f] !== undefined) update[f] = req.body[f]; });
 
@@ -200,7 +219,9 @@ app.patch("/complaints/:id/student-update", authenticateToken, authorizeRole("st
   }
 });
 
-/* COMPLAINTS - Police full update */
+/* ==========================
+   COMPLAINTS - Police full update
+========================== */
 app.patch("/complaints/:id/update", authenticateToken, authorizeRole("police"), async (req, res) => {
   try {
     const updated = await Complaint.findByIdAndUpdate(req.params.id, { ...req.body }, { new: true });
@@ -210,7 +231,9 @@ app.patch("/complaints/:id/update", authenticateToken, authorizeRole("police"), 
   }
 });
 
-/* TEAM */
+/* ==========================
+   TEAM
+========================== */
 app.get("/team", async (req, res) => {
   try {
     const team = await Team.find().sort({ order: 1 });
@@ -220,5 +243,8 @@ app.get("/team", async (req, res) => {
   }
 });
 
+/* ==========================
+   START SERVER
+========================== */
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
