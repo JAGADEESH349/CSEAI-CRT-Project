@@ -1,84 +1,170 @@
-/* ===== Reset box sizing ===== */
-
-*,
-*::before,
-*::after {
+/* ===== Reset ===== */
+*, *::before, *::after {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
-
-/* ===== Prevent horizontal scrolling ===== */
 
 html, body {
   width: 100%;
   overflow-x: hidden;
   background-color: #0a1628;
+  -webkit-text-size-adjust: 100%;
 }
 
-/* ===== Ensure images and media don't overflow ===== */
-
+/* ===== Images ===== */
 img, video {
   max-width: 100%;
   height: auto;
   display: block;
 }
 
-/* ===== Main page containers ===== */
-
+/* ===== Containers ===== */
 .container,
-.container-fluid,
-.mycomplaints-container,
-.dashboard-page {
+.container-fluid {
   width: 100%;
   max-width: 1200px;
   margin: auto;
-  padding: 20px;
+  padding: 16px;
 }
 
-/* ===== Grid for complaints ===== */
-
+/* ===== Complaint grid ===== */
 .mycomplaints-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
+  gap: 16px;
   width: 100%;
 }
 
 /* ===== Complaint cards ===== */
-
 .complaint-card {
   width: 100%;
   background: white;
   border-radius: 12px;
-  padding: 18px;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+  padding: 16px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
   transition: 0.2s ease;
 }
 
 .complaint-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+  box-shadow: 0 14px 28px rgba(0,0,0,0.15);
 }
 
-/* ===== Ensure text does not overflow ===== */
-
-.complaint-description p {
+/* ===== Text overflow ===== */
+.complaint-description p,
+p {
   word-wrap: break-word;
   overflow-wrap: break-word;
+  -webkit-hyphens: auto;
+  hyphens: auto;
 }
 
-/* ===== Form inputs stay inside container ===== */
-
-input,
-textarea,
-select,
-button {
-  width: 100%;
+/* ===== Form inputs ===== */
+input, textarea, select, button {
   max-width: 100%;
+  font-family: inherit;
 }
 
 /* ===== Bootstrap row fix ===== */
-
 .row {
   margin-left: 0;
   margin-right: 0;
+}
+
+/* ===== Mobile touch targets ===== */
+button, a, [role="button"] {
+  min-height: 40px;
+  min-width: 40px;
+}
+
+/* ===== Dashboard page ===== */
+.dashboard-page {
+  padding: 20px 16px;
+}
+
+/* ===== Responsive utilities ===== */
+@media (max-width: 768px) {
+  .container,
+  .container-fluid,
+  .mycomplaints-container,
+  .dashboard-page {
+    padding: 16px;
+  }
+
+  .mycomplaints-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  /* Police header bar */
+  .police-header-bar {
+    max-width: 100% !important;
+    border-radius: 10px !important;
+    padding: 16px !important;
+  }
+
+  .police-title {
+    font-size: 18px !important;
+  }
+
+  .police-icon {
+    font-size: 28px !important;
+  }
+
+  /* Dashboard cards */
+  .dashboard-card h3 {
+    font-size: 32px !important;
+  }
+
+  /* Stat cards */
+  .stat-number {
+    font-size: 40px !important;
+  }
+
+  /* Section title */
+  .section-title {
+    font-size: 18px !important;
+  }
+
+  /* Table — make scrollable */
+  .complaints-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .complaints-table {
+    min-width: 500px;
+  }
+
+  /* Modals */
+  .view-modal,
+  .edit-modal,
+  .mc-view-modal,
+  .mc-edit-modal {
+    padding: 20px 16px !important;
+    border-radius: 18px !important;
+    max-height: 92vh !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-page {
+    padding: 12px;
+  }
+
+  /* Emblem strip */
+  .emblem-strip {
+    gap: 10px !important;
+  }
+
+  .emblem-text {
+    font-size: 10px !important;
+    letter-spacing: 2px !important;
+  }
+
+  /* Edit/view modals full width on very small screens */
+  .mc-view-modal,
+  .mc-edit-modal {
+    margin: 0 !important;
+  }
 }

@@ -1,241 +1,74 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to   { opacity: 1; transform: translateY(0); }
+@keyframes fadeInUp  { from{opacity:0;transform:translateY(30px);} to{opacity:1;transform:translateY(0);} }
+@keyframes fadeInDown{ from{opacity:0;transform:translateY(-20px);} to{opacity:1;transform:translateY(0);} }
+@keyframes scaleIn   { from{opacity:0;transform:scale(0.85);}      to{opacity:1;transform:scale(1);} }
+@keyframes pulse     { 0%,100%{transform:scale(1);} 50%{transform:scale(1.08);} }
+
+/* Page */
+.student-page { min-height:100vh; font-family:'Poppins',sans-serif; background:#f0fdf4; }
+
+/* Hero */
+.student-hero { width:100%; min-height:clamp(160px,25vw,220px); background-image:url('../../public/police-bg.jpg'); background-size:cover; background-position:center; }
+.student-hero-overlay { width:100%; min-height:clamp(160px,25vw,220px); background:linear-gradient(135deg,rgba(5,150,105,0.88),rgba(16,185,129,0.82)); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:clamp(24px,5vw,40px) clamp(16px,5vw,40px); text-align:center; gap:10px; }
+.student-hero-icon     { font-size:clamp(34px,6vw,48px); color:#6ee7b7; animation:pulse 2.5s ease-in-out infinite; filter:drop-shadow(0 0 10px rgba(110,231,183,0.6)); }
+.student-hero-title    { font-size:clamp(18px,4vw,28px); font-weight:700; color:white; margin:0; }
+.student-hero-subtitle { font-size:clamp(12px,2.5vw,15px); color:rgba(255,255,255,0.88); margin:0; max-width:600px; }
+
+/* Body */
+.student-body { padding:clamp(16px,4vw,30px) clamp(14px,4vw,40px); max-width:1200px; margin:0 auto; }
+
+/* Stat cards */
+.s-stat-card { display:flex; align-items:center; justify-content:space-between; padding:clamp(16px,3vw,22px) clamp(16px,3vw,28px); border-radius:14px; color:white; box-shadow:0 8px 24px rgba(0,0,0,0.12); animation:scaleIn 0.5s ease both; transition:all 0.3s ease; }
+.s-stat-card:hover { transform:translateY(-5px); box-shadow:0 16px 40px rgba(0,0,0,0.18); }
+.s-stat-left   { display:flex; flex-direction:column; gap:5px; }
+.s-stat-icon   { font-size:clamp(20px,3.5vw,26px); opacity:0.9; }
+.s-stat-label  { font-size:clamp(11px,2.5vw,13px); font-weight:600; opacity:0.9; }
+.s-stat-number { font-size:clamp(32px,6vw,52px); font-weight:700; line-height:1; }
+
+.s-total   { background:linear-gradient(135deg,#059669,#34d399); animation-delay:0.1s; }
+.s-pending { background:linear-gradient(135deg,#d97706,#b45309); animation-delay:0.2s; }
+.s-solved  { background:linear-gradient(135deg,#0891b2,#0e7490); animation-delay:0.3s; }
+
+/* Section title */
+.s-section-title { font-size:clamp(15px,3vw,18px); font-weight:700; color:#047857; margin-bottom:16px; border-left:4px solid #34d399; padding-left:12px; }
+
+/* Action cards grid */
+.student-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr)); gap:clamp(14px,3vw,24px); margin-bottom:20px; }
+
+.student-card { background:white; border-radius:16px; padding:clamp(18px,4vw,28px) clamp(16px,3vw,24px); box-shadow:0 4px 20px rgba(16,185,129,0.12); cursor:pointer; transition:all 0.35s cubic-bezier(0.4,0,0.2,1); animation:fadeInUp 0.5s ease both; display:flex; flex-direction:column; gap:10px; border:1px solid #e5e7eb; border-top:4px solid #10b981; }
+.student-card:hover { transform:translateY(-8px) scale(1.02); box-shadow:0 20px 45px rgba(16,185,129,0.2); border-color:#a7f3d0; }
+.student-card h3 { font-size:clamp(14px,3vw,16px); font-weight:700; color:#065f46; margin:0; }
+.student-card p  { font-size:13px; color:#6b7280; margin:0; line-height:1.5; }
+
+.student-card-icon-wrap { width:clamp(42px,8vw,52px); height:clamp(42px,8vw,52px); border-radius:12px; display:flex; align-items:center; justify-content:center; }
+.student-card-icon { font-size:clamp(18px,4vw,24px); color:white; }
+
+.green  { background:linear-gradient(135deg,#059669,#34d399); }
+.blue   { background:linear-gradient(135deg,#1d4ed8,#3b82f6); }
+.orange { background:linear-gradient(135deg,#b45309,#f59e0b); }
+.teal   { background:linear-gradient(135deg,#0e7490,#06b6d4); }
+
+.s-card-btn { margin-top:8px; padding:7px 14px; border:none; border-radius:8px; font-weight:600; font-size:12px; cursor:pointer; transition:0.2s; width:fit-content; font-family:'Poppins',sans-serif; }
+.green-btn  { background:#d1fae5; color:#047857; }
+.blue-btn   { background:#dbeafe; color:#1d4ed8; }
+.orange-btn { background:#fef3c7; color:#b45309; }
+.teal-btn   { background:#cffafe; color:#0e7490; }
+.s-card-btn:hover { filter:brightness(0.93); transform:scale(1.03); }
+
+/* Safety tips */
+.safety-tips { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr)); gap:clamp(10px,2vw,16px); margin-bottom:clamp(24px,5vw,40px); }
+
+.tip-card { background:white; border-radius:12px; padding:clamp(14px,3vw,20px); box-shadow:0 2px 10px rgba(0,0,0,0.06); display:flex; align-items:flex-start; gap:12px; animation:fadeInUp 0.5s ease both; transition:0.2s; border-left:4px solid #34d399; }
+.tip-card:hover { transform:translateY(-3px); box-shadow:0 8px 20px rgba(16,185,129,0.12); }
+.tip-icon { font-size:clamp(18px,4vw,24px); flex-shrink:0; }
+.tip-card p { font-size:clamp(11px,2.5vw,13px); color:#374151; margin:0; line-height:1.5; }
+
+/* Responsive */
+@media (max-width:480px) {
+  .student-grid { grid-template-columns:1fr 1fr; }
+  .s-stat-card  { flex-direction:column; align-items:flex-start; gap:6px; }
 }
-@keyframes fadeInDown {
-  from { opacity: 0; transform: translateY(-20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.85); }
-  to   { opacity: 1; transform: scale(1); }
-}
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50%       { transform: scale(1.08); }
-}
-
-.student-page {
-  min-height: 100vh;
-  font-family: 'Poppins', sans-serif;
-  background: #f0fdf4;
-}
-
-/* ==============================
-   HERO
-================================ */
-.student-hero {
-  width: 100%;
-  min-height: 220px;
-  background-image: url('../../public/police-bg.jpg');
-  background-size: cover;
-  background-position: center;
-}
-
-.student-hero-overlay {
-  width: 100%;
-  min-height: 220px;
-  background: linear-gradient(135deg, rgba(5,150,105,0.88), rgba(16,185,129,0.82));
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-  text-align: center;
-  gap: 12px;
-}
-
-.student-hero-icon {
-  font-size: 48px;
-  color: #6ee7b7;
-  animation: pulse 2.5s ease-in-out infinite;
-  filter: drop-shadow(0 0 10px rgba(110,231,183,0.6));
-}
-
-.student-hero-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: white;
-  margin: 0;
-}
-
-.student-hero-subtitle {
-  font-size: 15px;
-  color: rgba(255,255,255,0.88);
-  margin: 0;
-  max-width: 600px;
-}
-
-/* ==============================
-   BODY
-================================ */
-.student-body {
-  padding: 30px 40px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-/* ==============================
-   STAT CARDS
-================================ */
-.s-stat-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 22px 28px;
-  border-radius: 14px;
-  color: white;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-  animation: scaleIn 0.5s ease both;
-  transition: all 0.3s ease;
-}
-
-.s-stat-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 16px 40px rgba(0,0,0,0.18);
-}
-
-.s-stat-left { display: flex; flex-direction: column; gap: 6px; }
-.s-stat-icon { font-size: 26px; opacity: 0.9; }
-.s-stat-label { font-size: 13px; font-weight: 600; opacity: 0.9; }
-
-.s-stat-number {
-  font-size: 52px;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.s-total   { background: linear-gradient(135deg, #059669, #34d399); animation-delay: 0.1s; }
-.s-pending { background: linear-gradient(135deg, #d97706, #b45309); animation-delay: 0.2s; }
-.s-solved  { background: linear-gradient(135deg, #0891b2, #0e7490); animation-delay: 0.3s; }
-
-/* ==============================
-   SECTION TITLE
-================================ */
-.s-section-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: #047857;
-  margin-bottom: 20px;
-  border-left: 4px solid #34d399;
-  padding-left: 12px;
-}
-
-/* ==============================
-   ACTION CARDS
-================================ */
-.student-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 24px;
-  margin-bottom: 20px;
-}
-
-.student-card {
-  background: white;
-  border-radius: 16px;
-  padding: 28px 24px;
-  box-shadow: 0 4px 20px rgba(16,185,129,0.12);
-  cursor: pointer;
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  animation: fadeInUp 0.5s ease both;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  border: 1px solid #e5e7eb;
-  border-top: 4px solid #10b981;
-}
-
-.student-card:hover {
-  transform: translateY(-10px) scale(1.02);
-  box-shadow: 0 20px 45px rgba(16,185,129,0.2);
-  border-color: #a7f3d0;
-}
-
-.student-card h3 {
-  font-size: 16px;
-  font-weight: 700;
-  color: #065f46;
-  margin: 0;
-}
-
-.student-card p {
-  font-size: 13px;
-  color: #6b7280;
-  margin: 0;
-  line-height: 1.5;
-}
-
-.student-card-icon-wrap {
-  width: 52px;
-  height: 52px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.student-card-icon { font-size: 24px; color: white; }
-
-.green  { background: linear-gradient(135deg, #059669, #34d399); }
-.blue   { background: linear-gradient(135deg, #1d4ed8, #3b82f6); }
-.orange { background: linear-gradient(135deg, #b45309, #f59e0b); }
-.teal   { background: linear-gradient(135deg, #0e7490, #06b6d4); }
-
-.s-card-btn {
-  margin-top: 8px;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 13px;
-  cursor: pointer;
-  transition: 0.2s;
-  width: fit-content;
-}
-
-.green-btn  { background: #d1fae5; color: #047857; }
-.blue-btn   { background: #dbeafe; color: #1d4ed8; }
-.orange-btn { background: #fef3c7; color: #b45309; }
-.teal-btn   { background: #cffafe; color: #0e7490; }
-
-.s-card-btn:hover { filter: brightness(0.93); transform: scale(1.03); }
-
-/* ==============================
-   SAFETY TIPS
-================================ */
-.safety-tips {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 40px;
-}
-
-.tip-card {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  animation: fadeInUp 0.5s ease both;
-  transition: 0.2s;
-  border-left: 4px solid #34d399;
-}
-
-.tip-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(16,185,129,0.12);
-}
-
-.tip-icon { font-size: 24px; }
-
-.tip-card p {
-  font-size: 13px;
-  color: #374151;
-  margin: 0;
-  line-height: 1.5;
+@media (max-width:360px) {
+  .student-grid { grid-template-columns:1fr; }
 }

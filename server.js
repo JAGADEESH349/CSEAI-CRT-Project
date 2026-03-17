@@ -14,9 +14,6 @@ const PoliceWhitelist = require("./models/PoliceWhitelist");
 
 const app = express();
 
-/* ==========================
-   MIDDLEWARE
-========================== */
 app.use(cors({
   origin: "https://fanciful-meerkat-83fea2.netlify.app",
   credentials: true
@@ -27,60 +24,42 @@ app.use("/uploads", express.static("uploads"));
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
 const POLICE_ACCESS_CODE = process.env.POLICE_ACCESS_CODE || "CAMPUS-POLICE-2025";
 
-/* ==========================
-   MULTER SETUP
-========================== */
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, "uploads/"),
   filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
 });
 const upload = multer({ storage });
 
-/* ==========================
-   DATABASE CONNECTION
-========================== */
 mongoose.connect(process.env.MONGO_URI)
-.then(() => console.log("MongoDB Connected"))
-.catch(err => {
-  console.error("MongoDB Error:", err);
-  process.exit(1);
-});
+  .then(() => console.log("MongoDB Connected"))
+  .catch(err => {
+    console.error("MongoDB Error:", err);
+    process.exit(1);
+  });
 
-/* ==========================
-   HEALTH CHECK
-========================== */
 app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
 /* ==========================
-   REGISTER USER (FIXED)
+   REGISTER USER
 ========================== */
 app.post("/register", async (req, res) => {
   try {
-    let { username, password } = req.body;
+    let { username, rollNo, password } = req.body;
 
-    // ✅ Validation
-    if (!username || !password) {
-      return res.status(400).json({ message: "Username and password required" });
-    }
+    if (!username || !rollNo || !password)
+      return res.status(400).json({ message: "All fields required" });
 
     username = username.trim();
+    rollNo = rollNo.trim().toUpperCase();
 
-    // ✅ Check duplicate user
-    const existingUser = await User.findOne({ username });
-    if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
-    }
+    const existing = await User.findOne({ rollNo });
+    if (existing)
+      return res.status(400).json({ message: "Roll number already registered" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = new User({
-      username,
-      password: hashedPassword,
-      role: "student"
-    });
-
+    const user = new User({ username, rollNo, password: hashedPassword, role: "student" });
     await user.save();
 
     res.json({ message: "User registered successfully" });
@@ -92,15 +71,14 @@ app.post("/register", async (req, res) => {
 });
 
 /* ==========================
-   LOGIN USER (FIXED)
+   LOGIN USER
 ========================== */
 app.post("/login", async (req, res) => {
   try {
     const { username, password, accessCode } = req.body;
 
-    if (!username || !password) {
+    if (!username || !password)
       return res.status(400).json({ message: "Missing credentials" });
-    }
 
     const user = await User.findOne({ username });
     if (!user) return res.status(401).json({ message: "Invalid credentials" });
@@ -109,14 +87,12 @@ app.post("/login", async (req, res) => {
     if (!validPassword) return res.status(401).json({ message: "Invalid credentials" });
 
     if (user.role === "police") {
-      if (!accessCode || accessCode !== POLICE_ACCESS_CODE) {
+      if (!accessCode || accessCode !== POLICE_ACCESS_CODE)
         return res.status(403).json({ message: "Unauthorized officer credentials" });
-      }
 
       const whitelisted = await PoliceWhitelist.findOne({ username });
-      if (!whitelisted) {
+      if (!whitelisted)
         return res.status(403).json({ message: "Unauthorized officer credentials" });
-      }
     }
 
     const token = jwt.sign(
@@ -139,7 +115,6 @@ app.post("/login", async (req, res) => {
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
-
   if (!token) return res.status(403).json({ message: "Token required" });
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
@@ -151,60 +126,46 @@ function authenticateToken(req, res, next) {
 
 function authorizeRole(...roles) {
   return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
+    if (!roles.includes(req.user.role))
       return res.status(403).json({ message: "Access denied" });
-    }
     next();
   };
 }
 
 /* ==========================
-   CREATE COMPLAINT
+   COMPLAINTS
 ========================== */
 app.post("/complaints", authenticateToken, upload.single("evidence"), async (req, res) => {
   try {
     const data = { ...req.body, studentId: req.user.id };
-
     if (req.file) data.evidencePath = req.file.filename;
-
     const complaint = new Complaint(data);
     await complaint.save();
-
     res.json({ message: "Complaint saved" });
-
   } catch (err) {
     console.error("COMPLAINT ERROR:", err);
     res.status(500).json({ message: err.message });
   }
 });
 
-/* ==========================
-   GET COMPLAINTS
-========================== */
 app.get("/complaints", authenticateToken, async (req, res) => {
   try {
     if (req.user.role === "student") {
       const complaints = await Complaint.find({ studentId: req.user.id });
       return res.json(complaints);
     }
-
     const complaints = await Complaint.find();
     res.json(complaints);
-
   } catch (err) {
     console.error("FETCH ERROR:", err);
     res.status(500).json({ message: err.message });
   }
 });
 
-/* ==========================
-   UPDATE COMPLAINT
-========================== */
 app.patch("/complaints/:id", authenticateToken, authorizeRole("police"), async (req, res) => {
   try {
     await Complaint.findByIdAndUpdate(req.params.id, { status: "Solved" });
     res.json({ message: "Updated" });
-
   } catch (err) {
     console.error("UPDATE ERROR:", err);
     res.status(500).json({ message: err.message });
@@ -212,21 +173,17 @@ app.patch("/complaints/:id", authenticateToken, authorizeRole("police"), async (
 });
 
 /* ==========================
-   GET TEAM
+   TEAM
 ========================== */
 app.get("/team", async (req, res) => {
   try {
     const team = await Team.find().sort({ order: 1 });
     res.json(team);
-
   } catch (err) {
     console.error("TEAM ERROR:", err);
     res.status(500).json({ message: err.message });
   }
 });
 
-/* ==========================
-   SERVER START (FIXED)
-========================== */
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

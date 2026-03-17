@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import "../styles/dashboard.css";
 
 function AdminDashboard() {
-
   const [complaints, setComplaints] = useState([]);
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
@@ -36,7 +35,6 @@ function AdminDashboard() {
     );
   };
 
-  // FIX: Use optional chaining c.title?.toLowerCase() to prevent crash when title is undefined
   const pending = complaints.filter(c =>
     c.status === "Pending" &&
     (c.title?.toLowerCase().includes(search.toLowerCase()) ||
@@ -52,9 +50,9 @@ function AdminDashboard() {
   return (
     <div className="dashboard-page">
       <div className="admin-panel container-fluid">
-        <div className="container mt-4">
+        <div className="container mt-2">
 
-          {/* ===== Police Header ===== */}
+          {/* ── Police Header ── */}
           <div className="police-header-bar">
             <div className="header-left">
               <FaUserShield className="police-icon" />
@@ -68,59 +66,57 @@ function AdminDashboard() {
             </button>
           </div>
 
-          {/* ===== Emblem Strip ===== */}
+          {/* ── Emblem Strip ── */}
           <div className="emblem-strip">
             <span>⚖️</span>
             <span className="emblem-text">Rajampet Police Department — Serving & Protecting</span>
             <span>🛡️</span>
           </div>
 
-          {/* ===== Search Section ===== */}
+          {/* ── Search ── */}
           <div className="search-container">
-            <label className="search-label">Search for Complaints</label>
+            <label className="search-label">Search Complaints</label>
             <input
               type="text"
-              placeholder="Enter complaint title or category..."
+              placeholder="Enter title or category..."
               value={search}
               onChange={e => setSearch(e.target.value)}
               className="search-box"
             />
           </div>
 
-          {/* ===== Statistics ===== */}
-          <div className="row g-4 text-center mb-4">
-            <div className="col-md-4">
+          {/* ── Stats ── */}
+          <div className="row g-3 text-center mb-3">
+            <div className="col-4">
               <div className="card dashboard-card total-card">
-                <div className="card-body">
-                  <h6>Total Complaints</h6>
+                <div className="card-body p-3">
+                  <h6 style={{ fontSize: "12px", marginBottom: "4px" }}>Total</h6>
                   <h3>{complaints.length}</h3>
                 </div>
               </div>
             </div>
-            <div className="col-md-4">
+            <div className="col-4">
               <div className="card dashboard-card pending-card">
-                <div className="card-body">
-                  <h6>Pending Complaints</h6>
+                <div className="card-body p-3">
+                  <h6 style={{ fontSize: "12px", marginBottom: "4px" }}>Pending</h6>
                   <h3>{pending.length}</h3>
                 </div>
               </div>
             </div>
-            <div className="col-md-4">
+            <div className="col-4">
               <div className="card dashboard-card solved-card">
-                <div className="card-body">
-                  <h6>Solved Complaints</h6>
+                <div className="card-body p-3">
+                  <h6 style={{ fontSize: "12px", marginBottom: "4px" }}>Solved</h6>
                   <h3>{solved.length}</h3>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* ===== Pending Complaints ===== */}
+          {/* ── Pending ── */}
           <h3 className="section-title">Pending Complaints</h3>
-          {pending.length === 0 && (
-            <p className="text-center">No pending complaints</p>
-          )}
-          <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-4">
+          {pending.length === 0 && <p className="text-center">No pending complaints</p>}
+          <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-3">
             {pending.map(c => (
               <div key={c._id} className="col">
                 <div className="card complaint-card h-100">
@@ -128,16 +124,16 @@ function AdminDashboard() {
                     <div className="complaint-title-box">{c.title || c.category}</div>
                     <p className="card-text">{c.description}</p>
                     <p><b>Category:</b> {c.category}</p>
-                    <p><b>Submitted:</b> {c.createdAt ? new Date(c.createdAt).toLocaleString() : "N/A"}</p>
+                    <p><b>Submitted:</b> {c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "N/A"}</p>
                     <p>
                       <b>Status:</b>
                       <span className="badge bg-danger ms-2">Pending</span>
                     </p>
                     <button
-                      className="btn btn-success solve-btn"
+                      className="btn btn-success solve-btn w-100"
                       onClick={() => markSolved(c._id)}
                     >
-                      Mark as Solved
+                      ✅ Mark as Solved
                     </button>
                   </div>
                 </div>
@@ -145,12 +141,10 @@ function AdminDashboard() {
             ))}
           </div>
 
-          {/* ===== Solved Complaints ===== */}
-          <h3 className="section-title mt-3">Solved Complaints</h3>
-          {solved.length === 0 && (
-            <p className="text-center">No solved complaints</p>
-          )}
-          <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
+          {/* ── Solved ── */}
+          <h3 className="section-title mt-2">Solved Complaints</h3>
+          {solved.length === 0 && <p className="text-center">No solved complaints</p>}
+          <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-4">
             {solved.map(c => (
               <div key={c._id} className="col">
                 <div className="card complaint-card solved h-100">
@@ -158,7 +152,7 @@ function AdminDashboard() {
                     <div className="complaint-title-box">{c.title || c.category}</div>
                     <p className="card-text">{c.description}</p>
                     <p><b>Category:</b> {c.category}</p>
-                    <p><b>Submitted:</b> {c.createdAt ? new Date(c.createdAt).toLocaleString() : "N/A"}</p>
+                    <p><b>Submitted:</b> {c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "N/A"}</p>
                     <p>
                       <b>Status:</b>
                       <span className="badge bg-success ms-2">Solved</span>
