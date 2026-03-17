@@ -53,21 +53,28 @@ mongoose.connect(process.env.MONGO_URI)
 /* REGISTER */
 app.post("/register", async (req, res) => {
   try {
-    // ✅ FIX 1: Safe null check BEFORE trim — prevents 500 crash
     const rawUsername = req.body.username;
     const rawPassword = req.body.password;
-    const rollNo      = req.body.rollNo || "";
+    const rawRollNo   = req.body.rollNo;
 
-    if (!rawUsername || !rawPassword)
-      return res.status(400).json({ message: "Username and password are required" });
+    if (!rawUsername || !rawPassword || !rawRollNo)
+      return res.status(400).json({ message: "Username, Roll Number and password are required" });
 
     const username = String(rawUsername).trim();
     const password = String(rawPassword);
+    const rollNo   = String(rawRollNo).trim().toUpperCase();
 
     if (!username)
       return res.status(400).json({ message: "Username cannot be empty" });
+    if (!rollNo)
+      return res.status(400).json({ message: "Roll Number cannot be empty" });
     if (password.length < 6)
       return res.status(400).json({ message: "Password must be at least 6 characters" });
+
+    // ✅ Check rollNo uniqueness manually for a clear error message
+    const existing = await User.findOne({ rollNo });
+    if (existing)
+      return res.status(409).json({ message: "An account with this Roll Number already exists." });
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({ username, password: hashedPassword, role: "student", rollNo });
@@ -75,8 +82,6 @@ app.post("/register", async (req, res) => {
     res.json({ message: "User registered successfully" });
   } catch (err) {
     console.log("Register error:", err);
-    if (err.code === 11000)
-      return res.status(409).json({ message: "Username already taken. Please choose another." });
     res.status(500).json({ message: "Registration failed. Please try again." });
   }
 });
@@ -91,14 +96,12 @@ app.post("/login", async (req, res) => {
     if (!rawUsername || !rawPassword)
       return res.status(400).json({ message: "Username and password are required" });
 
-    const username = String(rawUsername).trim();
+    const input    = String(rawUsername).trim();
     const password = String(rawPassword);
 
-    // ✅ FIX 2: Find by username OR rollNo so students can login with either
-    let user = await User.findOne({ username });
-    if (!user) {
-      user = await User.findOne({ rollNo: username });
-    }
+    // ✅ Find by rollNo first (students), fallback to username (police)
+    let user = await User.findOne({ rollNo: input.toUpperCase() });
+    if (!user) user = await User.findOne({ username: input });
     if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
     const validPassword = await bcrypt.compare(password, user.password);
