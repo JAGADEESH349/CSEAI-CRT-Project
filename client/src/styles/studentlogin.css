@@ -11,7 +11,8 @@
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-  padding: 20px;
+  /* ✅ FIX: enough top padding so back button never overlaps card */
+  padding: 70px 16px 24px;
   position: relative;
   overflow: hidden;
 }
@@ -24,7 +25,7 @@
   z-index: 0;
 }
 
-/* ── Back button ── */
+/* ── Back button (to landing page) ── */
 .sl-back-btn {
   position: fixed;
   top: 16px;
@@ -45,64 +46,48 @@
   backdrop-filter: blur(10px);
   transition: all 0.2s;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  /* ✅ FIX: min touch target for mobile */
+  min-height: 36px;
+  min-width: 80px;
 }
 .sl-back-btn:hover {
   background: rgba(255,255,255,0.9);
   transform: translateX(-2px);
 }
 
-/* ── 3-D scene ── */
-.sl-scene {
+/* ── Wrapper replaces old 3D scene ── */
+.sl-wrapper {
   position: relative;
   z-index: 1;
   width: min(420px, calc(100vw - 32px));
-  /* Increased height to fit 3 fields on register face */
-  height: 560px;
-  perspective: 1200px;
 }
 
-.sl-face {
-  position: absolute;
-  inset: 0;
-  padding: 36px 32px;
+/* ── Each panel (login / register) ── */
+.sl-panel {
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(20px);
+  border: 1.5px solid rgba(255,255,255,0.9);
+  box-shadow:
+    0 8px 0 rgba(0,0,0,0.07),
+    0 20px 60px rgba(0,0,0,0.14),
+    inset 0 1px 0 rgba(255,255,255,0.95);
   border-radius: 28px;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  transition: transform 0.7s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+  padding: 36px 32px 28px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  overflow-y: auto;
-  scrollbar-width: none;
-}
-.sl-face::-webkit-scrollbar { display: none; }
-
-.sl-face--front {
-  background: rgba(255,255,255,0.85);
-  backdrop-filter: blur(20px);
-  border: 1.5px solid rgba(255,255,255,0.9);
-  box-shadow:
-    0 8px 0 rgba(0,0,0,0.07),
-    0 20px 60px rgba(0,0,0,0.14),
-    inset 0 1px 0 rgba(255,255,255,0.95);
-  transform: rotateY(0deg);
-}
-.sl-scene--flipped .sl-face--front {
-  transform: rotateY(-180deg);
+  /* ✅ FIX: animation instead of 3D flip — works perfectly on mobile */
+  animation: sl-fadeIn 0.35s ease both;
 }
 
-.sl-face--back {
-  background: rgba(255,255,255,0.85);
-  backdrop-filter: blur(20px);
-  border: 1.5px solid rgba(255,255,255,0.9);
-  box-shadow:
-    0 8px 0 rgba(0,0,0,0.07),
-    0 20px 60px rgba(0,0,0,0.14),
-    inset 0 1px 0 rgba(255,255,255,0.95);
-  transform: rotateY(180deg);
+/* ✅ FIX: hidden panel is simply display:none — no clipping issues */
+.sl-panel--hidden {
+  display: none;
 }
-.sl-scene--flipped .sl-face--back {
-  transform: rotateY(0deg);
+
+@keyframes sl-fadeIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
 }
 
 /* ── Icon ── */
@@ -175,7 +160,7 @@
 }
 .sl-input::placeholder { color: #9ca3af; }
 
-/* ── Button ── */
+/* ── Submit Button ── */
 @keyframes shimmer {
   0%   { background-position: -400px 0; }
   100% { background-position:  400px 0; }
@@ -217,6 +202,30 @@
   animation: shimmer 2s infinite;
 }
 
+/* ✅ FIX: Back to Login button inside register panel */
+.sl-back-to-login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px;
+  border: 1.5px solid #d1fae5;
+  border-radius: 12px;
+  background: #f0fdf4;
+  color: #065f46;
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.sl-back-to-login-btn:hover {
+  background: #d1fae5;
+  border-color: #10b981;
+}
+
 /* ── Messages ── */
 .sl-error {
   background: rgba(254,226,226,0.9);
@@ -255,15 +264,24 @@
 
 /* ── Mobile ── */
 @media (max-width: 480px) {
-  .sl-scene {
-    height: 520px;
+  .sl-container {
+    padding: 70px 12px 24px;
+    align-items: flex-start;
   }
 
-  .sl-face {
-    padding: 28px 22px;
+  .sl-panel {
+    padding: 28px 20px 24px;
     border-radius: 22px;
   }
 
   .sl-icon { font-size: 34px; }
   .sl-title { font-size: 17px; }
+
+  /* ✅ FIX: ensure back button stays above everything on mobile */
+  .sl-back-btn {
+    top: 12px;
+    left: 12px;
+    font-size: 11px;
+    padding: 6px 12px;
+  }
 }

@@ -16,7 +16,7 @@ function AdminDashboard() {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => setComplaints(res.data))
-    .catch(err => console.log(err));
+    .catch(err => { console.log(err); if (err.response?.status === 401 || err.response?.status === 403) { localStorage.clear(); window.location.href = "/"; } });
   }, []);
 
   const handleLogout = () => {

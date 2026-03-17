@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
 
 const Complaint = require("./models/Complaint");
 const User = require("./models/User");
@@ -13,6 +14,12 @@ const Team = require("./models/Team");
 const PoliceWhitelist = require("./models/PoliceWhitelist");
 
 const app = express();
+
+// ✅ FIX 3: Auto-create uploads folder if missing (fixes Render ephemeral filesystem crash)
+if (!fs.existsSync("uploads")) {
+  fs.mkdirSync("uploads");
+  console.log("Created uploads/ directory");
+}
 
 const allowedOrigins = [
   process.env.CLIENT_URL,
@@ -56,7 +63,6 @@ app.post("/register", async (req, res) => {
 
     const role = "student";
     const hashedPassword = await bcrypt.hash(password, 10);
-    // ✅ FIX 3: Save rollNo to the user document
     const user = new User({ username, password: hashedPassword, role, rollNo: rollNo || "" });
     await user.save();
     res.json({ message: "User registered successfully" });
@@ -103,7 +109,7 @@ function authenticateToken(req, res, next) {
   const token = authHeader && authHeader.split(" ")[1];
   if (!token) return res.status(403).json({ message: "Token required" });
   jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ message: "Invalid or expired token. Please login again." });
+    if (err) return res.status(403).json({ message: "Token expired. Please login again." });
     req.user = user;
     next();
   });
@@ -155,15 +161,13 @@ app.patch("/complaints/:id", authenticateToken, authorizeRole("police"), async (
   }
 });
 
-/* ✅ FIX 2: COMPLAINTS - Student edit own complaint */
+/* COMPLAINTS - Student edit own complaint */
 app.patch("/complaints/:id/student-update", authenticateToken, authorizeRole("student"), async (req, res) => {
   try {
-    // Make sure this complaint belongs to the student
     const complaint = await Complaint.findOne({ _id: req.params.id, studentId: req.user.id });
     if (!complaint)
       return res.status(403).json({ message: "Not authorized to edit this complaint" });
 
-    // Only allow editing safe fields — students cannot change status
     const allowedFields = [
       "title", "description", "incidentLocation", "incidentDate",
       "phoneNumber", "witnessDetails", "accusedName", "injuryDetails"

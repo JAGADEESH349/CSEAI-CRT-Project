@@ -45,3 +45,31 @@
   .cat-grid { grid-template-columns:repeat(2,1fr); gap:10px; }
   .cat-img-wrap { height:110px; }
 }
+/* ✅ FIX 1: Missing styles for "Other" category card */
+.cat-other-placeholder {
+  height: clamp(120px, 20vw, 180px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  padding: 20px;
+}
+.cat-other-icon {
+  font-size: clamp(32px, 6vw, 48px);
+  line-height: 1;
+}
+.cat-other-text {
+  font-size: clamp(11px, 2.5vw, 13px);
+  color: #065f46;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.5;
+  margin: 0;
+}
+.cat-card-other .cat-card-footer { background: #f0fdf4; }
+.cat-card-other:hover .cat-card-footer { background: #dcfce7; }
+@media (max-width: 480px) {
+  .cat-other-placeholder { height: 110px; }
+}

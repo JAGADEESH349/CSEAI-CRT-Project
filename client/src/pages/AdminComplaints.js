@@ -17,7 +17,7 @@ function AdminComplaints() {
     const token = localStorage.getItem("token");
     axios.get(`${API_URL}/complaints`, { headers: { Authorization: `Bearer ${token}` } })
       .then(res => setComplaints(res.data))
-      .catch(err => console.log(err));
+      .catch(err => { console.log(err); if (err.response?.status === 401 || err.response?.status === 403) { localStorage.clear(); window.location.href = "/"; } });
   }, []);
 
   const markSolved = async (id) => {

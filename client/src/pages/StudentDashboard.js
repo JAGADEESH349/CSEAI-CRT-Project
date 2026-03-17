@@ -21,7 +21,7 @@ function StudentDashboard() {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => { setComplaints(res.data); setLoading(false); })
-    .catch(() => setLoading(false));
+    .catch((err) => { setLoading(false); if (err.response?.status === 401 || err.response?.status === 403) { localStorage.clear(); window.location.href = "/"; } });
   }, [navigate]);
 
   const total   = complaints.length;

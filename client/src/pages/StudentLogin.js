@@ -1,6 +1,3 @@
-// ✅ FIX 1: This is the correct StudentLogin.js
-// The Roll Number field from StudentDashboard.js has been moved here where it belongs
-
 import API_URL from "../config";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -12,12 +9,10 @@ function StudentLogin() {
   const navigate = useNavigate();
   const [flipped, setFlipped] = useState(false);
 
-  // Login state
   const [loginUser, setLoginUser]   = useState("");
   const [loginPass, setLoginPass]   = useState("");
   const [loginError, setLoginError] = useState("");
 
-  // Register state
   const [regUser, setRegUser]   = useState("");
   const [regRoll, setRegRoll]   = useState("");
   const [regPass, setRegPass]   = useState("");
@@ -44,16 +39,9 @@ function StudentLogin() {
   const handleRegister = async (e) => {
     e.preventDefault();
     setRegError(""); setRegMsg("");
-    if (!regUser || !regRoll || !regPass) {
-      setRegError("Please fill all fields");
-      return;
-    }
+    if (!regUser || !regRoll || !regPass) { setRegError("Please fill all fields"); return; }
     try {
-      await axios.post(`${API_URL}/register`, {
-        username: regUser,
-        rollNo: regRoll,
-        password: regPass
-      });
+      await axios.post(`${API_URL}/register`, { username: regUser, rollNo: regRoll, password: regPass });
       setRegMsg("Account created! Please login.");
       setRegUser(""); setRegRoll(""); setRegPass("");
       setTimeout(() => { setFlipped(false); setRegMsg(""); }, 1800);
@@ -69,14 +57,16 @@ function StudentLogin() {
     <div className="sl-container">
       <div className="sl-overlay" />
 
+      {/* ✅ FIX 1: Back button goes to landing — always visible, never hidden */}
       <button className="sl-back-btn" onClick={() => navigate("/")}>
         <FaArrowLeft /> Back
       </button>
 
-      <div className={`sl-scene ${flipped ? "sl-scene--flipped" : ""}`}>
+      {/* ✅ FIX 2: On mobile use show/hide instead of 3D flip to prevent cut-off */}
+      <div className="sl-wrapper">
 
-        {/* ── FRONT: LOGIN ── */}
-        <div className="sl-face sl-face--front">
+        {/* LOGIN PANEL */}
+        <div className={`sl-panel ${flipped ? "sl-panel--hidden" : ""}`}>
           <div className="sl-icon-wrap">
             <FaShieldAlt className="sl-icon sl-icon--green" />
           </div>
@@ -88,39 +78,25 @@ function StudentLogin() {
           <form onSubmit={handleLogin}>
             <div className="sl-field">
               <FaUser className="sl-field-icon" />
-              <input
-                className="sl-input"
-                type="text"
-                placeholder="Username"
-                value={loginUser}
-                required
-                onChange={e => setLoginUser(e.target.value)}
-              />
+              <input className="sl-input" type="text" placeholder="Username"
+                value={loginUser} required onChange={e => setLoginUser(e.target.value)} />
             </div>
             <div className="sl-field">
               <FaLock className="sl-field-icon" />
-              <input
-                className="sl-input"
-                type="password"
-                placeholder="Password"
-                value={loginPass}
-                required
-                onChange={e => setLoginPass(e.target.value)}
-              />
+              <input className="sl-input" type="password" placeholder="Password"
+                value={loginPass} required onChange={e => setLoginPass(e.target.value)} />
             </div>
             <button type="submit" className="sl-btn sl-btn--green">Sign In</button>
           </form>
 
           <p className="sl-toggle">
             New here?{" "}
-            <span className="sl-toggle-link" onClick={flipToRegister}>
-              Create an account
-            </span>
+            <span className="sl-toggle-link" onClick={flipToRegister}>Create an account</span>
           </p>
         </div>
 
-        {/* ── BACK: REGISTER ── */}
-        <div className="sl-face sl-face--back">
+        {/* REGISTER PANEL */}
+        <div className={`sl-panel ${!flipped ? "sl-panel--hidden" : ""}`}>
           <div className="sl-icon-wrap">
             <FaUserPlus className="sl-icon sl-icon--green" />
           </div>
@@ -133,45 +109,30 @@ function StudentLogin() {
           <form onSubmit={handleRegister}>
             <div className="sl-field">
               <FaUser className="sl-field-icon" />
-              <input
-                className="sl-input"
-                type="text"
-                placeholder="Choose a username"
-                value={regUser}
-                required
-                onChange={e => setRegUser(e.target.value)}
-              />
+              <input className="sl-input" type="text" placeholder="Choose a username"
+                value={regUser} required onChange={e => setRegUser(e.target.value)} />
             </div>
             <div className="sl-field">
               <FaIdCard className="sl-field-icon" />
-              <input
-                className="sl-input"
-                type="text"
-                placeholder="Roll Number (e.g. 22A91A6101)"
-                value={regRoll}
-                required
-                onChange={e => setRegRoll(e.target.value)}
-              />
+              <input className="sl-input" type="text" placeholder="Roll Number (e.g. 22A91A6101)"
+                value={regRoll} required onChange={e => setRegRoll(e.target.value)} />
             </div>
             <div className="sl-field">
               <FaLock className="sl-field-icon" />
-              <input
-                className="sl-input"
-                type="password"
-                placeholder="Choose a password (min 6 chars)"
-                value={regPass}
-                required
-                onChange={e => setRegPass(e.target.value)}
-              />
+              <input className="sl-input" type="password" placeholder="Choose a password (min 6 chars)"
+                value={regPass} required onChange={e => setRegPass(e.target.value)} />
             </div>
             <button type="submit" className="sl-btn sl-btn--green">Register</button>
           </form>
 
+          {/* ✅ FIX 3: Proper back button INSIDE register panel — always visible */}
+          <button className="sl-back-to-login-btn" onClick={flipToLogin}>
+            <FaArrowLeft /> Back to Login
+          </button>
+
           <p className="sl-toggle">
             Already have an account?{" "}
-            <span className="sl-toggle-link" onClick={flipToLogin}>
-              Login here
-            </span>
+            <span className="sl-toggle-link" onClick={flipToLogin}>Login here</span>
           </p>
         </div>
 
