@@ -2,29 +2,58 @@ import API_URL from "../config";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { FaShieldAlt, FaUser, FaLock, FaArrowLeft } from "react-icons/fa";
+import { FaShieldAlt, FaUser, FaLock, FaArrowLeft, FaKey } from "react-icons/fa";
 import "../styles/policelogin.css";
 
 function PoliceLogin() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError]       = useState("");
+  const [username, setUsername]     = useState("");
+  const [password, setPassword]     = useState("");
+  const [accessCode, setAccessCode] = useState("");
+  const [error, setError]           = useState("");
+  const [attempts, setAttempts]     = useState(0);
+  const [locked, setLocked]         = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
+
+    if (locked) {
+      setError("Too many failed attempts. Please wait 5 minutes.");
+      return;
+    }
+
     try {
-      const res = await axios.post(`${API_URL}/login`, { username, password });
+      const res = await axios.post(`${API_URL}/login`, {
+        username,
+        password,
+        accessCode
+      });
+
       if (res.data.role !== "police") {
         setError("Access denied. Use the Student portal.");
         return;
       }
+
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("role", res.data.role);
       navigate("/admin");
-    } catch {
-      setError("Invalid credentials");
+
+    } catch (err) {
+      const newAttempts = attempts + 1;
+      setAttempts(newAttempts);
+
+      if (newAttempts >= 3) {
+        setLocked(true);
+        setError("Too many failed attempts. Account locked for 5 minutes.");
+        setTimeout(() => {
+          setLocked(false);
+          setAttempts(0);
+        }, 5 * 60 * 1000);
+      } else {
+        const msg = err.response?.data?.message || "Invalid credentials";
+        setError(`${msg} — ${3 - newAttempts} attempt${3 - newAttempts === 1 ? "" : "s"} remaining`);
+      }
     }
   };
 
@@ -32,7 +61,6 @@ function PoliceLogin() {
     <div className="pl-container">
       <div className="pl-overlay" />
 
-      {/* Decorative blue glow orbs */}
       <div className="pl-orb pl-orb-1" />
       <div className="pl-orb pl-orb-2" />
 
@@ -41,13 +69,11 @@ function PoliceLogin() {
       </button>
 
       <div className="pl-card">
-        {/* Badge */}
         <div className="pl-badge">
           <div className="pl-badge-dot" />
           Authorized Personnel Only
         </div>
 
-        {/* Icon */}
         <div className="pl-icon-wrap">
           <FaShieldAlt className="pl-icon" />
         </div>
@@ -69,6 +95,7 @@ function PoliceLogin() {
               onChange={e => setUsername(e.target.value)}
             />
           </div>
+
           <div className="pl-field">
             <FaLock className="pl-field-icon" />
             <input
@@ -80,7 +107,24 @@ function PoliceLogin() {
               onChange={e => setPassword(e.target.value)}
             />
           </div>
-          <button type="submit" className="pl-btn">Sign In</button>
+
+          <div className="pl-field">
+            <FaKey className="pl-field-icon" />
+            <input
+              className="pl-input"
+              type="password"
+              placeholder="Department Access Code"
+              value={accessCode}
+              required
+              onChange={e => setAccessCode(e.target.value)}
+            />
+          </div>
+
+          <p className="pl-access-hint">🔐 Access code is issued by administration only</p>
+
+          <button type="submit" className="pl-btn" disabled={locked}>
+            {locked ? "Account Locked 🔒" : "Sign In"}
+          </button>
         </form>
 
         <p className="pl-note">
