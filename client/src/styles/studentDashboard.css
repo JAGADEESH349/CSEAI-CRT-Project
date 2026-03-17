@@ -16,10 +16,6 @@
   0%, 100% { transform: scale(1); }
   50%       { transform: scale(1.08); }
 }
-@keyframes shimmer {
-  0%   { background-position: -400px 0; }
-  100% { background-position: 400px 0; }
-}
 
 .student-page {
   min-height: 100vh;
@@ -137,43 +133,42 @@
   margin-bottom: 20px;
 }
 
-.dash-card {
-  background: linear-gradient(160deg, #ecfdf5, #d1fae5) !important;
-  border-radius: 16px !important;
+.student-card {
+  background: white;
+  border-radius: 16px;
   padding: 28px 24px;
-  box-shadow: 0 4px 20px rgba(16,185,129,0.12) !important;
+  box-shadow: 0 4px 20px rgba(16,185,129,0.12);
   cursor: pointer;
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   animation: fadeInUp 0.5s ease both;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  border: 1px solid #a7f3d0 !important;
-  border-top: 4px solid #10b981 !important;
-  color: #065f46 !important;
+  border: 1px solid #e5e7eb;
+  border-top: 4px solid #10b981;
 }
 
-.dash-card:hover {
+.student-card:hover {
   transform: translateY(-10px) scale(1.02);
-  box-shadow: 0 20px 45px rgba(16,185,129,0.25) !important;
-  background: linear-gradient(160deg, #d1fae5, #a7f3d0) !important;
+  box-shadow: 0 20px 45px rgba(16,185,129,0.2);
+  border-color: #a7f3d0;
 }
 
-.dash-card h3 {
+.student-card h3 {
   font-size: 16px;
   font-weight: 700;
-  color: #065f46 !important;
+  color: #065f46;
   margin: 0;
 }
 
-.dash-card p {
+.student-card p {
   font-size: 13px;
-  color: #374151 !important;
+  color: #6b7280;
   margin: 0;
   line-height: 1.5;
 }
 
-.dash-card-icon-wrap {
+.student-card-icon-wrap {
   width: 52px;
   height: 52px;
   border-radius: 12px;
@@ -182,7 +177,7 @@
   justify-content: center;
 }
 
-.dash-card-icon { font-size: 24px; color: white; }
+.student-card-icon { font-size: 24px; color: white; }
 
 .green  { background: linear-gradient(135deg, #059669, #34d399); }
 .blue   { background: linear-gradient(135deg, #1d4ed8, #3b82f6); }
@@ -243,35 +238,4 @@
   color: #374151;
   margin: 0;
   line-height: 1.5;
-}
-
-/* ==============================
-   FORCE LIGHT GREEN CARD THEME
-   (overrides Bootstrap)
-================================ */
-.student-page .student-grid .dash-card,
-div.dash-card {
-  background: linear-gradient(160deg, #ecfdf5, #d1fae5) !important;
-  border: 1px solid #a7f3d0 !important;
-  border-top: 4px solid #10b981 !important;
-  box-shadow: 0 4px 20px rgba(16,185,129,0.12) !important;
-  color: #065f46 !important;
-}
-
-.student-page .student-grid .dash-card:hover,
-div.dash-card:hover {
-  background: linear-gradient(160deg, #d1fae5, #a7f3d0) !important;
-  box-shadow: 0 20px 45px rgba(16,185,129,0.25) !important;
-  transform: translateY(-8px) scale(1.02);
-}
-
-.student-page .student-grid .dash-card h3,
-div.dash-card h3 {
-  color: #065f46 !important;
-  font-weight: 700;
-}
-
-.student-page .student-grid .dash-card p,
-div.dash-card p {
-  color: #374151 !important;
 }
