@@ -1,4 +1,4 @@
-// ✅ FIXED: Uses correct CSS class names from studentDashboard.css
+// ✅ Fixed: stat cards use s-stats-row CSS grid instead of Bootstrap col-4
 
 import API_URL from "../config";
 import { useEffect, useState } from "react";
@@ -21,7 +21,12 @@ function StudentDashboard() {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => { setComplaints(res.data); setLoading(false); })
-    .catch((err) => { setLoading(false); if (err.response?.status === 401 || err.response?.status === 403) { localStorage.clear(); window.location.href = "/"; } });
+    .catch((err) => {
+      setLoading(false);
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        localStorage.clear(); window.location.href = "/";
+      }
+    });
   }, [navigate]);
 
   const total   = complaints.length;
@@ -48,34 +53,28 @@ function StudentDashboard() {
 
       <div className="student-body">
 
-        {/* Stats Row */}
-        <div className="row g-3 mb-4">
-          <div className="col-4">
-            <div className="s-stat-card s-total">
-              <div className="s-stat-left">
-                <FaClipboardList className="s-stat-icon" />
-                <span className="s-stat-label">Total</span>
-              </div>
-              <span className="s-stat-number">{loading ? "…" : total}</span>
+        {/* ✅ Stats Row — CSS grid instead of Bootstrap col-4 */}
+        <div className="s-stats-row">
+          <div className="s-stat-card s-total">
+            <div className="s-stat-left">
+              <FaClipboardList className="s-stat-icon" />
+              <span className="s-stat-label">Total</span>
             </div>
+            <span className="s-stat-number">{loading ? "…" : total}</span>
           </div>
-          <div className="col-4">
-            <div className="s-stat-card s-pending">
-              <div className="s-stat-left">
-                <FaClock className="s-stat-icon" />
-                <span className="s-stat-label">Pending</span>
-              </div>
-              <span className="s-stat-number">{loading ? "…" : pending}</span>
+          <div className="s-stat-card s-pending">
+            <div className="s-stat-left">
+              <FaClock className="s-stat-icon" />
+              <span className="s-stat-label">Pending</span>
             </div>
+            <span className="s-stat-number">{loading ? "…" : pending}</span>
           </div>
-          <div className="col-4">
-            <div className="s-stat-card s-solved">
-              <div className="s-stat-left">
-                <FaCheckCircle className="s-stat-icon" />
-                <span className="s-stat-label">Solved</span>
-              </div>
-              <span className="s-stat-number">{loading ? "…" : solved}</span>
+          <div className="s-stat-card s-solved">
+            <div className="s-stat-left">
+              <FaCheckCircle className="s-stat-icon" />
+              <span className="s-stat-label">Solved</span>
             </div>
+            <span className="s-stat-number">{loading ? "…" : solved}</span>
           </div>
         </div>
 
