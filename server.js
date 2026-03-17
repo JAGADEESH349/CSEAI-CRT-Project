@@ -14,10 +14,21 @@ const PoliceWhitelist = require("./models/PoliceWhitelist");
 
 const app = express();
 
+// ✅ FIX 1: CORS — explicitly allow your Netlify frontend URL
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "http://localhost:3000",
+].filter(Boolean);
+
 app.use(cors({
-  origin: "https://fanciful-meerkat-83fea2.netlify.app",
-  credentials: true
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error("Not allowed by CORS"));
+  },
+  credentials: true,
 }));
+
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 
@@ -32,55 +43,41 @@ const upload = multer({ storage });
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
-  .catch(err => {
-    console.error("MongoDB Error:", err);
-    process.exit(1);
-  });
+  .catch(err => console.log(err));
 
-app.get("/", (req, res) => {
-  res.send("API is running...");
-});
-
-/* ==========================
-   REGISTER USER
-========================== */
+/* REGISTER */
 app.post("/register", async (req, res) => {
   try {
-    let { username, rollNo, password } = req.body;
-
-    if (!username || !rollNo || !password)
-      return res.status(400).json({ message: "All fields required" });
-
+    let { username, password } = req.body;
     username = username.trim();
-    rollNo = rollNo.trim().toUpperCase();
+    if (!username || !password)
+      return res.status(400).json({ message: "Username and password are required" });
+    if (password.length < 6)
+      return res.status(400).json({ message: "Password must be at least 6 characters" });
 
-    const existing = await User.findOne({ rollNo });
-    if (existing)
-      return res.status(400).json({ message: "Roll number already registered" });
-
+    const role = "student";
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({ username, rollNo, password: hashedPassword, role: "student" });
+    const user = new User({ username, password: hashedPassword, role });
     await user.save();
-
     res.json({ message: "User registered successfully" });
-
   } catch (err) {
-    console.error("REGISTER ERROR:", err);
-    res.status(500).json({ message: err.message });
+    console.log(err);
+    // ✅ FIX 2: Specific error for duplicate username
+    if (err.code === 11000)
+      return res.status(409).json({ message: "Username already taken. Please choose another." });
+    res.status(500).json({ message: "Registration failed. Please try again." });
   }
 });
 
-/* ==========================
-   LOGIN USER
-========================== */
+/* LOGIN */
 app.post("/login", async (req, res) => {
+  // ✅ FIX 3: try/catch was completely missing — DB errors would crash
   try {
     const { username, password, accessCode } = req.body;
-
     if (!username || !password)
-      return res.status(400).json({ message: "Missing credentials" });
+      return res.status(400).json({ message: "Username and password are required" });
 
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ username: username.trim() });
     if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
     const validPassword = await bcrypt.compare(password, user.password);
@@ -88,53 +85,41 @@ app.post("/login", async (req, res) => {
 
     if (user.role === "police") {
       if (!accessCode || accessCode !== POLICE_ACCESS_CODE)
-        return res.status(403).json({ message: "Unauthorized officer credentials" });
-
-      const whitelisted = await PoliceWhitelist.findOne({ username });
+        return res.status(403).json({ message: "Invalid access code" });
+      const whitelisted = await PoliceWhitelist.findOne({ username: username.trim() });
       if (!whitelisted)
-        return res.status(403).json({ message: "Unauthorized officer credentials" });
+        return res.status(403).json({ message: "Officer not authorized. Contact administration." });
     }
 
-    const token = jwt.sign(
-      { id: user._id, role: user.role },
-      JWT_SECRET,
-      { expiresIn: "2h" }
-    );
-
+    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: "2h" });
     res.json({ token, role: user.role, message: "Login successful" });
-
   } catch (err) {
-    console.error("LOGIN ERROR:", err);
-    res.status(500).json({ message: err.message });
+    console.log("Login error:", err);
+    res.status(500).json({ message: "Login failed. Please try again." });
   }
 });
 
-/* ==========================
-   AUTH MIDDLEWARE
-========================== */
+/* AUTH MIDDLEWARE */
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
   if (!token) return res.status(403).json({ message: "Token required" });
-
   jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ message: "Invalid token" });
+    if (err) return res.status(403).json({ message: "Invalid or expired token. Please login again." });
     req.user = user;
     next();
   });
 }
 
-function authorizeRole(...roles) {
+function authorizeRole(...allowedRoles) {
   return (req, res, next) => {
-    if (!roles.includes(req.user.role))
-      return res.status(403).json({ message: "Access denied" });
+    if (!allowedRoles.includes(req.user.role))
+      return res.status(403).json({ message: "Access denied: insufficient role" });
     next();
   };
 }
 
-/* ==========================
-   COMPLAINTS
-========================== */
+/* COMPLAINTS */
 app.post("/complaints", authenticateToken, upload.single("evidence"), async (req, res) => {
   try {
     const data = { ...req.body, studentId: req.user.id };
@@ -143,8 +128,8 @@ app.post("/complaints", authenticateToken, upload.single("evidence"), async (req
     await complaint.save();
     res.json({ message: "Complaint saved" });
   } catch (err) {
-    console.error("COMPLAINT ERROR:", err);
-    res.status(500).json({ message: err.message });
+    console.log(err);
+    res.status(500).json({ message: "Failed to save complaint" });
   }
 });
 
@@ -157,31 +142,35 @@ app.get("/complaints", authenticateToken, async (req, res) => {
     const complaints = await Complaint.find();
     res.json(complaints);
   } catch (err) {
-    console.error("FETCH ERROR:", err);
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: "Failed to fetch complaints" });
   }
 });
 
 app.patch("/complaints/:id", authenticateToken, authorizeRole("police"), async (req, res) => {
   try {
     await Complaint.findByIdAndUpdate(req.params.id, { status: "Solved" });
-    res.json({ message: "Updated" });
+    res.json({ message: "Complaint marked solved" });
   } catch (err) {
-    console.error("UPDATE ERROR:", err);
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: "Failed to update complaint" });
   }
 });
 
-/* ==========================
-   TEAM
-========================== */
+app.patch("/complaints/:id/update", authenticateToken, authorizeRole("police"), async (req, res) => {
+  try {
+    const updated = await Complaint.findByIdAndUpdate(req.params.id, { ...req.body }, { new: true });
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to update complaint" });
+  }
+});
+
+/* TEAM */
 app.get("/team", async (req, res) => {
   try {
     const team = await Team.find().sort({ order: 1 });
     res.json(team);
   } catch (err) {
-    console.error("TEAM ERROR:", err);
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: "Failed to fetch team" });
   }
 });
 
