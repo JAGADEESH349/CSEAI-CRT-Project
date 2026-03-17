@@ -1,8 +1,11 @@
+// ✅ FIX 1: This is the correct StudentLogin.js
+// The Roll Number field from StudentDashboard.js has been moved here where it belongs
+
 import API_URL from "../config";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { FaShieldAlt, FaUser, FaLock, FaUserPlus, FaArrowLeft } from "react-icons/fa";
+import { FaShieldAlt, FaUser, FaLock, FaUserPlus, FaArrowLeft, FaIdCard } from "react-icons/fa";
 import "../styles/studentlogin.css";
 
 function StudentLogin() {
@@ -15,10 +18,11 @@ function StudentLogin() {
   const [loginError, setLoginError] = useState("");
 
   // Register state
-  const [regUser, setRegUser]       = useState("");
-  const [regPass, setRegPass]       = useState("");
-  const [regError, setRegError]     = useState("");
-  const [regMsg, setRegMsg]         = useState("");
+  const [regUser, setRegUser]   = useState("");
+  const [regRoll, setRegRoll]   = useState("");
+  const [regPass, setRegPass]   = useState("");
+  const [regError, setRegError] = useState("");
+  const [regMsg, setRegMsg]     = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -40,13 +44,20 @@ function StudentLogin() {
   const handleRegister = async (e) => {
     e.preventDefault();
     setRegError(""); setRegMsg("");
-    if (!regUser || !regPass) { setRegError("Please fill all fields"); return; }
+    if (!regUser || !regRoll || !regPass) {
+      setRegError("Please fill all fields");
+      return;
+    }
     try {
-      await axios.post(`${API_URL}/register`, { username: regUser, password: regPass });
+      await axios.post(`${API_URL}/register`, {
+        username: regUser,
+        rollNo: regRoll,
+        password: regPass
+      });
       setRegMsg("Account created! Please login.");
-      setRegUser(""); setRegPass("");
+      setRegUser(""); setRegRoll(""); setRegPass("");
       setTimeout(() => { setFlipped(false); setRegMsg(""); }, 1800);
-    } catch(err) {
+    } catch (err) {
       setRegError(err.response?.data?.message || "Registration failed");
     }
   };
@@ -62,7 +73,6 @@ function StudentLogin() {
         <FaArrowLeft /> Back
       </button>
 
-      {/* 3-D flip wrapper */}
       <div className={`sl-scene ${flipped ? "sl-scene--flipped" : ""}`}>
 
         {/* ── FRONT: LOGIN ── */}
@@ -133,11 +143,22 @@ function StudentLogin() {
               />
             </div>
             <div className="sl-field">
+              <FaIdCard className="sl-field-icon" />
+              <input
+                className="sl-input"
+                type="text"
+                placeholder="Roll Number (e.g. 22A91A6101)"
+                value={regRoll}
+                required
+                onChange={e => setRegRoll(e.target.value)}
+              />
+            </div>
+            <div className="sl-field">
               <FaLock className="sl-field-icon" />
               <input
                 className="sl-input"
                 type="password"
-                placeholder="Choose a password"
+                placeholder="Choose a password (min 6 chars)"
                 value={regPass}
                 required
                 onChange={e => setRegPass(e.target.value)}

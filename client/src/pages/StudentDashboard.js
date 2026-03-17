@@ -1,175 +1,184 @@
+// ✅ FIXED: Uses correct CSS class names from studentDashboard.css
+
 import API_URL from "../config";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { FaShieldAlt, FaUser, FaLock, FaUserPlus, FaArrowLeft, FaIdCard } from "react-icons/fa";
-import "../styles/studentlogin.css";
+import {
+  FaShieldAlt, FaClipboardList, FaPlus, FaClock, FaCheckCircle
+} from "react-icons/fa";
+import "../styles/studentDashboard.css";
 
-function StudentLogin() {
+function StudentDashboard() {
   const navigate = useNavigate();
-  const [flipped, setFlipped] = useState(false);
+  const [complaints, setComplaints] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Login state
-  const [loginUser, setLoginUser]   = useState("");
-  const [loginPass, setLoginPass]   = useState("");
-  const [loginError, setLoginError] = useState("");
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) { navigate("/"); return; }
+    axios.get(`${API_URL}/complaints`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    .then(res => { setComplaints(res.data); setLoading(false); })
+    .catch(() => setLoading(false));
+  }, [navigate]);
 
-  // Register state
-  const [regUser, setRegUser]   = useState("");
-  const [regRoll, setRegRoll]   = useState("");
-  const [regPass, setRegPass]   = useState("");
-  const [regError, setRegError] = useState("");
-  const [regMsg, setRegMsg]     = useState("");
+  const total   = complaints.length;
+  const pending = complaints.filter(c => c.status === "Pending").length;
+  const solved  = complaints.filter(c => c.status === "Solved").length;
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoginError("");
-    try {
-      const res = await axios.post(`${API_URL}/login`, { username: loginUser, password: loginPass });
-      if (res.data.role !== "student") {
-        setLoginError("Access denied. Use the Police portal.");
-        return;
-      }
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("role", res.data.role);
-      navigate("/student");
-    } catch {
-      setLoginError("Invalid username or password");
-    }
-  };
-
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    setRegError(""); setRegMsg("");
-    if (!regUser || !regRoll || !regPass) {
-      setRegError("Please fill all fields");
-      return;
-    }
-    try {
-      await axios.post(`${API_URL}/register`, {
-        username: regUser,
-        rollNo: regRoll,
-        password: regPass
-      });
-      setRegMsg("Account created! Please login.");
-      setRegUser(""); setRegRoll(""); setRegPass("");
-      setTimeout(() => { setFlipped(false); setRegMsg(""); }, 1800);
-    } catch (err) {
-      setRegError(err.response?.data?.message || "Registration failed");
-    }
-  };
-
-  const flipToRegister = () => { setLoginError(""); setFlipped(true); };
-  const flipToLogin    = () => { setRegError(""); setRegMsg(""); setFlipped(false); };
+  const recent = [...complaints]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 3);
 
   return (
-    <div className="sl-container">
-      <div className="sl-overlay" />
+    <div className="student-page">
 
-      <button className="sl-back-btn" onClick={() => navigate("/")}>
-        <FaArrowLeft /> Back
-      </button>
-
-      <div className={`sl-scene ${flipped ? "sl-scene--flipped" : ""}`}>
-
-        {/* ── FRONT: LOGIN ── */}
-        <div className="sl-face sl-face--front">
-          <div className="sl-icon-wrap">
-            <FaShieldAlt className="sl-icon sl-icon--green" />
-          </div>
-          <h2 className="sl-title">Student Portal</h2>
-          <p className="sl-sub">Campus Safety Connect</p>
-
-          {loginError && <div className="sl-error">{loginError}</div>}
-
-          <form onSubmit={handleLogin}>
-            <div className="sl-field">
-              <FaUser className="sl-field-icon" />
-              <input
-                className="sl-input"
-                type="text"
-                placeholder="Username"
-                value={loginUser}
-                required
-                onChange={e => setLoginUser(e.target.value)}
-              />
-            </div>
-            <div className="sl-field">
-              <FaLock className="sl-field-icon" />
-              <input
-                className="sl-input"
-                type="password"
-                placeholder="Password"
-                value={loginPass}
-                required
-                onChange={e => setLoginPass(e.target.value)}
-              />
-            </div>
-            <button type="submit" className="sl-btn sl-btn--green">Sign In</button>
-          </form>
-
-          <p className="sl-toggle">
-            New here?{" "}
-            <span className="sl-toggle-link" onClick={flipToRegister}>
-              Create an account
-            </span>
+      {/* Hero Banner */}
+      <div className="student-hero">
+        <div className="student-hero-overlay">
+          <FaShieldAlt className="student-hero-icon" />
+          <h1 className="student-hero-title">Campus Safety Connect</h1>
+          <p className="student-hero-subtitle">
+            Report incidents, track your complaints, and stay safe on campus.
           </p>
         </div>
+      </div>
 
-        {/* ── BACK: REGISTER ── */}
-        <div className="sl-face sl-face--back">
-          <div className="sl-icon-wrap">
-            <FaUserPlus className="sl-icon sl-icon--green" />
+      <div className="student-body">
+
+        {/* Stats Row */}
+        <div className="row g-3 mb-4">
+          <div className="col-4">
+            <div className="s-stat-card s-total">
+              <div className="s-stat-left">
+                <FaClipboardList className="s-stat-icon" />
+                <span className="s-stat-label">Total</span>
+              </div>
+              <span className="s-stat-number">{loading ? "…" : total}</span>
+            </div>
           </div>
-          <h2 className="sl-title">Create Account</h2>
-          <p className="sl-sub">Student registration</p>
-
-          {regError && <div className="sl-error">{regError}</div>}
-          {regMsg   && <div className="sl-success">{regMsg}</div>}
-
-          <form onSubmit={handleRegister}>
-            <div className="sl-field">
-              <FaUser className="sl-field-icon" />
-              <input
-                className="sl-input"
-                type="text"
-                placeholder="Choose a username"
-                value={regUser}
-                required
-                onChange={e => setRegUser(e.target.value)}
-              />
+          <div className="col-4">
+            <div className="s-stat-card s-pending">
+              <div className="s-stat-left">
+                <FaClock className="s-stat-icon" />
+                <span className="s-stat-label">Pending</span>
+              </div>
+              <span className="s-stat-number">{loading ? "…" : pending}</span>
             </div>
-            <div className="sl-field">
-              <FaIdCard className="sl-field-icon" />
-              <input
-                className="sl-input"
-                type="text"
-                placeholder="Roll Number (e.g. 22A91A6101)"
-                value={regRoll}
-                required
-                onChange={e => setRegRoll(e.target.value)}
-              />
+          </div>
+          <div className="col-4">
+            <div className="s-stat-card s-solved">
+              <div className="s-stat-left">
+                <FaCheckCircle className="s-stat-icon" />
+                <span className="s-stat-label">Solved</span>
+              </div>
+              <span className="s-stat-number">{loading ? "…" : solved}</span>
             </div>
-            <div className="sl-field">
-              <FaLock className="sl-field-icon" />
-              <input
-                className="sl-input"
-                type="password"
-                placeholder="Choose a password"
-                value={regPass}
-                required
-                onChange={e => setRegPass(e.target.value)}
-              />
-            </div>
-            <button type="submit" className="sl-btn sl-btn--green">Register</button>
-          </form>
+          </div>
+        </div>
 
-          <p className="sl-toggle">
-            Already have an account?{" "}
-            <span className="sl-toggle-link" onClick={flipToLogin}>
-              Login here
-            </span>
-          </p>
+        {/* Quick Actions */}
+        <h2 className="s-section-title">Quick Actions</h2>
+        <div className="student-grid mb-4">
+          <div className="student-card" onClick={() => navigate("/submit")}>
+            <div className="student-card-icon-wrap green">
+              <FaPlus className="student-card-icon" />
+            </div>
+            <h3>Submit Complaint</h3>
+            <p>Report a new safety incident on campus</p>
+            <button className="s-card-btn green-btn">Report Now →</button>
+          </div>
+
+          <div className="student-card" onClick={() => navigate("/my-complaints")}>
+            <div className="student-card-icon-wrap blue">
+              <FaClipboardList className="student-card-icon" />
+            </div>
+            <h3>My Complaints</h3>
+            <p>View and manage all your complaints</p>
+            <button className="s-card-btn blue-btn">View All →</button>
+          </div>
+
+          <div className="student-card" onClick={() => navigate("/my-complaints?status=pending")}>
+            <div className="student-card-icon-wrap orange">
+              <FaClock className="student-card-icon" />
+            </div>
+            <h3>Pending</h3>
+            <p>{loading ? "…" : `${pending} complaint${pending !== 1 ? "s" : ""} awaiting resolution`}</p>
+            <button className="s-card-btn orange-btn">View Pending →</button>
+          </div>
+
+          <div className="student-card" onClick={() => navigate("/my-complaints?status=solved")}>
+            <div className="student-card-icon-wrap teal">
+              <FaCheckCircle className="student-card-icon" />
+            </div>
+            <h3>Solved</h3>
+            <p>{loading ? "…" : `${solved} complaint${solved !== 1 ? "s" : ""} resolved`}</p>
+            <button className="s-card-btn teal-btn">View Solved →</button>
+          </div>
+        </div>
+
+        {/* Recent Complaints */}
+        <h2 className="s-section-title">Recent Complaints</h2>
+        {loading && <p style={{ color: "#6b7280", textAlign: "center", padding: "20px" }}>Loading…</p>}
+        {!loading && recent.length === 0 && (
+          <div style={{ textAlign: "center", padding: "40px 20px", background: "white", borderRadius: "16px", boxShadow: "0 4px 16px rgba(0,0,0,0.06)" }}>
+            <div style={{ fontSize: "48px", marginBottom: "12px" }}>📭</div>
+            <p style={{ color: "#6b7280", marginBottom: "16px" }}>No complaints yet.</p>
+            <button
+              onClick={() => navigate("/submit")}
+              style={{ background: "linear-gradient(135deg,#059669,#34d399)", color: "white", border: "none", borderRadius: "10px", padding: "10px 22px", fontWeight: "700", fontSize: "14px", cursor: "pointer", fontFamily: "'Poppins', sans-serif" }}
+            >
+              Submit your first complaint
+            </button>
+          </div>
+        )}
+        <div className="student-grid mb-4">
+          {recent.map(c => (
+            <div key={c._id} className="student-card" style={{ cursor: "default" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                <span style={{ background: "#d1fae5", color: "#065f46", padding: "3px 10px", borderRadius: "20px", fontSize: "11px", fontWeight: "700" }}>
+                  {c.category}
+                </span>
+                <span style={{ fontSize: "11px", fontWeight: "700", color: c.status === "Solved" ? "#059669" : "#d97706" }}>
+                  {c.status === "Solved" ? "✅ Solved" : "⏳ Pending"}
+                </span>
+              </div>
+              <p style={{ fontSize: "13px", color: "#374151", margin: "0 0 8px", lineHeight: 1.5 }}>
+                {c.description?.length > 80 ? c.description.slice(0, 80) + "…" : c.description || "No description"}
+              </p>
+              <span style={{ fontSize: "11px", color: "#9ca3af" }}>
+                🕐 {c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "N/A"}
+              </span>
+            </div>
+          ))}
+        </div>
+        {!loading && complaints.length > 3 && (
+          <div style={{ textAlign: "center", marginBottom: "32px" }}>
+            <button
+              onClick={() => navigate("/my-complaints")}
+              style={{ background: "transparent", border: "2px solid #10b981", color: "#065f46", borderRadius: "10px", padding: "10px 24px", fontWeight: "700", fontSize: "14px", cursor: "pointer", fontFamily: "'Poppins', sans-serif" }}
+            >
+              View all {total} complaints →
+            </button>
+          </div>
+        )}
+
+        {/* Safety Tips */}
+        <h2 className="s-section-title">Safety Tips</h2>
+        <div className="safety-tips mb-4">
+          {[
+            { emoji: "🚨", text: "Report suspicious activity immediately to campus police." },
+            { emoji: "🔒", text: "Keep your belongings secure and never leave them unattended." },
+            { emoji: "💻", text: "Never share your account credentials or OTPs with anyone." },
+            { emoji: "👥", text: "Walk in groups during late hours on campus." },
+          ].map((tip, i) => (
+            <div key={i} className="tip-card">
+              <span className="tip-icon">{tip.emoji}</span>
+              <p>{tip.text}</p>
+            </div>
+          ))}
         </div>
 
       </div>
@@ -177,4 +186,4 @@ function StudentLogin() {
   );
 }
 
-export default StudentLogin;
+export default StudentDashboard;

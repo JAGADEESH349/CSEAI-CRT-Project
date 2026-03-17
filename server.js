@@ -14,7 +14,6 @@ const PoliceWhitelist = require("./models/PoliceWhitelist");
 
 const app = express();
 
-// ✅ FIX 1: CORS — explicitly allow your Netlify frontend URL
 const allowedOrigins = [
   process.env.CLIENT_URL,
   "http://localhost:3000",
@@ -48,7 +47,7 @@ mongoose.connect(process.env.MONGO_URI)
 /* REGISTER */
 app.post("/register", async (req, res) => {
   try {
-    let { username, password } = req.body;
+    let { username, password, rollNo } = req.body;
     username = username.trim();
     if (!username || !password)
       return res.status(400).json({ message: "Username and password are required" });
@@ -57,12 +56,12 @@ app.post("/register", async (req, res) => {
 
     const role = "student";
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({ username, password: hashedPassword, role });
+    // ✅ FIX 3: Save rollNo to the user document
+    const user = new User({ username, password: hashedPassword, role, rollNo: rollNo || "" });
     await user.save();
     res.json({ message: "User registered successfully" });
   } catch (err) {
     console.log(err);
-    // ✅ FIX 2: Specific error for duplicate username
     if (err.code === 11000)
       return res.status(409).json({ message: "Username already taken. Please choose another." });
     res.status(500).json({ message: "Registration failed. Please try again." });
@@ -71,7 +70,6 @@ app.post("/register", async (req, res) => {
 
 /* LOGIN */
 app.post("/login", async (req, res) => {
-  // ✅ FIX 3: try/catch was completely missing — DB errors would crash
   try {
     const { username, password, accessCode } = req.body;
     if (!username || !password)
@@ -119,7 +117,7 @@ function authorizeRole(...allowedRoles) {
   };
 }
 
-/* COMPLAINTS */
+/* COMPLAINTS - Create */
 app.post("/complaints", authenticateToken, upload.single("evidence"), async (req, res) => {
   try {
     const data = { ...req.body, studentId: req.user.id };
@@ -133,6 +131,7 @@ app.post("/complaints", authenticateToken, upload.single("evidence"), async (req
   }
 });
 
+/* COMPLAINTS - Get */
 app.get("/complaints", authenticateToken, async (req, res) => {
   try {
     if (req.user.role === "student") {
@@ -146,6 +145,7 @@ app.get("/complaints", authenticateToken, async (req, res) => {
   }
 });
 
+/* COMPLAINTS - Mark Solved (police only) */
 app.patch("/complaints/:id", authenticateToken, authorizeRole("police"), async (req, res) => {
   try {
     await Complaint.findByIdAndUpdate(req.params.id, { status: "Solved" });
@@ -155,6 +155,31 @@ app.patch("/complaints/:id", authenticateToken, authorizeRole("police"), async (
   }
 });
 
+/* ✅ FIX 2: COMPLAINTS - Student edit own complaint */
+app.patch("/complaints/:id/student-update", authenticateToken, authorizeRole("student"), async (req, res) => {
+  try {
+    // Make sure this complaint belongs to the student
+    const complaint = await Complaint.findOne({ _id: req.params.id, studentId: req.user.id });
+    if (!complaint)
+      return res.status(403).json({ message: "Not authorized to edit this complaint" });
+
+    // Only allow editing safe fields — students cannot change status
+    const allowedFields = [
+      "title", "description", "incidentLocation", "incidentDate",
+      "phoneNumber", "witnessDetails", "accusedName", "injuryDetails"
+    ];
+    const update = {};
+    allowedFields.forEach(f => { if (req.body[f] !== undefined) update[f] = req.body[f]; });
+
+    const updated = await Complaint.findByIdAndUpdate(req.params.id, update, { new: true });
+    res.json(updated);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Failed to update complaint" });
+  }
+});
+
+/* COMPLAINTS - Police full update */
 app.patch("/complaints/:id/update", authenticateToken, authorizeRole("police"), async (req, res) => {
   try {
     const updated = await Complaint.findByIdAndUpdate(req.params.id, { ...req.body }, { new: true });
