@@ -7,7 +7,7 @@
 html, body {
   width: 100%;
   overflow-x: hidden;
-  background-color: #0a1628;
+  background-color: #f0fdf4; /* ✅ FIX: was dark navy - caused dark flash on white pages */
   -webkit-text-size-adjust: 100%;
 }
 

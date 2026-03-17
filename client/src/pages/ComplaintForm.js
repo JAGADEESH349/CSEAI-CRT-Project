@@ -162,7 +162,13 @@ function ComplaintForm() {
       setSuccess("Complaint submitted successfully!");
       setTimeout(() => navigate("/my-complaints"), 1600);
     } catch(err) {
-      setError("Failed to submit. Please try again.");
+      // ✅ FIX 4: Redirect on token expiry
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        localStorage.clear();
+        window.location.href = "/";
+        return;
+      }
+      setError(err.response?.data?.message || "Failed to submit. Please try again.");
     } finally {
       setSubmitting(false);
     }

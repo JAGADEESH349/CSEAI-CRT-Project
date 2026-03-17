@@ -9,6 +9,7 @@ function MyComplaints() {
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [viewingComplaint, setViewingComplaint] = useState(null);
+  const [editError, setEditError] = useState("");
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -26,6 +27,7 @@ function MyComplaints() {
   }, [navigate]);
 
   const startEdit = (c) => {
+    setEditError("");
     setEditingId(c._id);
     setEditForm({
       title: c.title || "",
@@ -52,7 +54,10 @@ function MyComplaints() {
       setEditingId(null);
     } catch(err) {
       console.log(err);
-      alert(err.response?.data?.message || "Failed to save changes");
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        localStorage.clear(); window.location.href = "/"; return;
+      }
+      setEditError(err.response?.data?.message || "Failed to save changes.");
     }
   };
 
@@ -186,6 +191,11 @@ function MyComplaints() {
               </div>
               <button className="mc-close-btn" onClick={() => setEditingId(null)}>✕</button>
             </div>
+            {editError && (
+              <div style={{ margin: "0 clamp(16px,3vw,28px)", padding: "10px 14px", background: "#fee2e2", color: "#b91c1c", borderRadius: "10px", fontSize: "13px", fontWeight: "500", border: "1px solid #fca5a5" }}>
+                ❌ {editError}
+              </div>
+            )}
             <div className="mc-edit-body">
               <div className="mc-edit-field">
                 <label className="mc-edit-label">📌 Complaint Title</label>
