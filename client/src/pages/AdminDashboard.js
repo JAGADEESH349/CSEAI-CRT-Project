@@ -1,3 +1,4 @@
+import API_URL from "../config";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { FaUserShield } from "react-icons/fa";
@@ -12,7 +13,7 @@ function AdminDashboard() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    axios.get("http://localhost:5000/complaints", {
+    axios.get(`${API_URL}/complaints`, {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => setComplaints(res.data))
@@ -27,7 +28,7 @@ function AdminDashboard() {
 
   const markSolved = async (id) => {
     const token = localStorage.getItem("token");
-    await axios.patch(`http://localhost:5000/complaints/${id}`, {}, {
+    await axios.patch(`${API_URL}/complaints/${id}`, {}, {
       headers: { Authorization: `Bearer ${token}` }
     });
     setComplaints(prev =>

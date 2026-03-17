@@ -1,3 +1,4 @@
+import API_URL from "../config";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -23,7 +24,7 @@ function StudentLogin() {
     e.preventDefault();
     setLoginError("");
     try {
-      const res = await axios.post("http://localhost:5000/login", { username: loginUser, password: loginPass });
+      const res = await axios.post(`${API_URL}/login`, { username: loginUser, password: loginPass });
       if (res.data.role !== "student") {
         setLoginError("Access denied. Use the Police portal.");
         return;
@@ -41,7 +42,7 @@ function StudentLogin() {
     setRegError(""); setRegMsg("");
     if (!regUser || !regPass) { setRegError("Please fill all fields"); return; }
     try {
-      await axios.post("http://localhost:5000/register", { username: regUser, password: regPass });
+      await axios.post(`${API_URL}/register`, { username: regUser, password: regPass });
       setRegMsg("Account created! Please login.");
       setRegUser(""); setRegPass("");
       setTimeout(() => { setFlipped(false); setRegMsg(""); }, 1800);

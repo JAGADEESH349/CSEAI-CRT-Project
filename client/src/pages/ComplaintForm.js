@@ -1,3 +1,4 @@
+import API_URL from "../config";
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -155,7 +156,7 @@ function ComplaintForm() {
       fd.append("category", cat);
       Object.entries(form).forEach(([k, v]) => fd.append(k, v));
       if (evidence) fd.append("evidence", evidence);
-      await axios.post("http://localhost:5000/complaints", fd, {
+      await axios.post(`${API_URL}/complaints`, fd, {
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" }
       });
       setSuccess("Complaint submitted successfully!");

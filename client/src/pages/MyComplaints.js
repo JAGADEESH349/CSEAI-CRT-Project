@@ -1,3 +1,4 @@
+import API_URL from "../config";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -17,7 +18,7 @@ function MyComplaints() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) { navigate("/"); return; }
-    axios.get("http://localhost:5000/complaints", {
+    axios.get(`${API_URL}/complaints`, {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => setComplaints(res.data))
@@ -42,7 +43,7 @@ function MyComplaints() {
     const token = localStorage.getItem("token");
     try {
       const res = await axios.patch(
-        `http://localhost:5000/complaints/${id}/update`,
+        `${API_URL}/complaints/${id}/update`,
         editForm,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -170,7 +171,7 @@ function MyComplaints() {
             {viewingComplaint.evidencePath && (
               <div className="mc-view-section">
                 <a
-                  href={`http://localhost:5000/uploads/${viewingComplaint.evidencePath}`}
+                  href={`${API_URL}/uploads/${viewingComplaint.evidencePath}`}
                   target="_blank"
                   rel="noreferrer"
                   className="mc-evidence-link"

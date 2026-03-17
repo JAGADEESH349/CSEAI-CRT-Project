@@ -1,3 +1,4 @@
+import API_URL from "../config";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
@@ -14,7 +15,7 @@ function AdminComplaints() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    axios.get("http://localhost:5000/complaints", {
+    axios.get(`${API_URL}/complaints`, {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => setComplaints(res.data))
@@ -23,7 +24,7 @@ function AdminComplaints() {
 
   const markSolved = async (id) => {
     const token = localStorage.getItem("token");
-    await axios.patch(`http://localhost:5000/complaints/${id}`, {}, {
+    await axios.patch(`${API_URL}/complaints/${id}`, {}, {
       headers: { Authorization: `Bearer ${token}` }
     });
     setComplaints(prev =>
@@ -182,7 +183,7 @@ function AdminComplaints() {
                         {/* FIX: Added missing <a tag */}
                         {c.evidencePath && (
                           <a
-                            href={`http://localhost:5000/uploads/${c.evidencePath}`}
+                            href={`${API_URL}/uploads/${c.evidencePath}`}
                             target="_blank"
                             rel="noreferrer"
                             style={{

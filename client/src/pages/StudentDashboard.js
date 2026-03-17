@@ -1,3 +1,4 @@
+import API_URL from "../config";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -14,7 +15,7 @@ function StudentDashboard() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) { navigate("/"); return; }
-    axios.get("http://localhost:5000/complaints", {
+    axios.get(`${API_URL}/complaints`, {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => setComplaints(res.data))
@@ -74,36 +75,36 @@ function StudentDashboard() {
         {/* Action Cards */}
         <div className="s-section-title">Quick Actions</div>
         <div className="student-grid">
-          <div className="dash-card" onClick={() => navigate("/submit")}>
-            <div className="dash-card-icon-wrap green">
-              <FaClipboardList className="dash-card-icon" />
+          <div className="student-card" onClick={() => navigate("/submit")}>
+            <div className="student-card-icon-wrap green">
+              <FaClipboardList className="student-card-icon" />
             </div>
             <h3>Submit Complaint</h3>
             <p>Report any safety issue or concern directly to campus police.</p>
             <button className="s-card-btn green-btn">Report Now →</button>
           </div>
 
-          <div className="dash-card" onClick={() => navigate("/my-complaints")}>
-            <div className="dash-card-icon-wrap blue">
-              <FaSearch className="dash-card-icon" />
+          <div className="student-card" onClick={() => navigate("/my-complaints")}>
+            <div className="student-card-icon-wrap blue">
+              <FaSearch className="student-card-icon" />
             </div>
             <h3>My Complaints</h3>
             <p>Track the status of complaints you have submitted.</p>
             <button className="s-card-btn blue-btn">View All →</button>
           </div>
 
-          <div className="dash-card" onClick={() => navigate("/my-complaints?status=pending")}>
-            <div className="dash-card-icon-wrap orange">
-              <FaClock className="dash-card-icon" />
+          <div className="student-card" onClick={() => navigate("/my-complaints?status=pending")}>
+            <div className="student-card-icon-wrap orange">
+              <FaClock className="student-card-icon" />
             </div>
             <h3>Pending Complaints</h3>
             <p>View complaints that are currently being reviewed.</p>
             <button className="s-card-btn orange-btn">View Pending →</button>
           </div>
 
-          <div className="dash-card" onClick={() => navigate("/my-complaints?status=solved")}>
-            <div className="dash-card-icon-wrap teal">
-              <FaCheckCircle className="dash-card-icon" />
+          <div className="student-card" onClick={() => navigate("/my-complaints?status=solved")}>
+            <div className="student-card-icon-wrap teal">
+              <FaCheckCircle className="student-card-icon" />
             </div>
             <h3>Solved Complaints</h3>
             <p>View complaints that have been resolved by campus police.</p>

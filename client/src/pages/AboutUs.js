@@ -1,3 +1,4 @@
+import API_URL from "../config";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -29,7 +30,7 @@ function AboutUs() {
       return;
     }
 
-    axios.get("http://localhost:5000/team")
+    axios.get(`${API_URL}/team`)
       .then(res => {
         setTeam(res.data);
         setLoading(false);
@@ -100,4 +101,4 @@ function AboutUs() {
   );
 }
 
-export default AboutUs; 
+export default AboutUs;
