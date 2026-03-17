@@ -81,37 +81,37 @@ function StudentDashboard() {
 
         {/* Quick Actions */}
         <h2 className="s-section-title">Quick Actions</h2>
-        <div className="student-grid mb-4">
-          <div className="student-card" onClick={() => navigate("/submit")}>
-            <div className="student-card-icon-wrap green">
-              <FaPlus className="student-card-icon" />
+        <div className="sd-action-grid mb-4">
+          <div className="sd-action-card" onClick={() => navigate("/submit")}>
+            <div className="sd-action-icon-wrap green">
+              <FaPlus className="sd-action-icon" />
             </div>
             <h3>Submit Complaint</h3>
             <p>Report a new safety incident on campus</p>
             <button className="s-card-btn green-btn">Report Now →</button>
           </div>
 
-          <div className="student-card" onClick={() => navigate("/my-complaints")}>
-            <div className="student-card-icon-wrap blue">
-              <FaClipboardList className="student-card-icon" />
+          <div className="sd-action-card" onClick={() => navigate("/my-complaints")}>
+            <div className="sd-action-icon-wrap blue">
+              <FaClipboardList className="sd-action-icon" />
             </div>
             <h3>My Complaints</h3>
             <p>View and manage all your complaints</p>
             <button className="s-card-btn blue-btn">View All →</button>
           </div>
 
-          <div className="student-card" onClick={() => navigate("/my-complaints?status=pending")}>
-            <div className="student-card-icon-wrap orange">
-              <FaClock className="student-card-icon" />
+          <div className="sd-action-card" onClick={() => navigate("/my-complaints?status=pending")}>
+            <div className="sd-action-icon-wrap orange">
+              <FaClock className="sd-action-icon" />
             </div>
             <h3>Pending</h3>
             <p>{loading ? "…" : `${pending} complaint${pending !== 1 ? "s" : ""} awaiting resolution`}</p>
             <button className="s-card-btn orange-btn">View Pending →</button>
           </div>
 
-          <div className="student-card" onClick={() => navigate("/my-complaints?status=solved")}>
-            <div className="student-card-icon-wrap teal">
-              <FaCheckCircle className="student-card-icon" />
+          <div className="sd-action-card" onClick={() => navigate("/my-complaints?status=solved")}>
+            <div className="sd-action-icon-wrap teal">
+              <FaCheckCircle className="sd-action-icon" />
             </div>
             <h3>Solved</h3>
             <p>{loading ? "…" : `${solved} complaint${solved !== 1 ? "s" : ""} resolved`}</p>
@@ -134,9 +134,9 @@ function StudentDashboard() {
             </button>
           </div>
         )}
-        <div className="student-grid mb-4">
+        <div className="sd-action-grid mb-4">
           {recent.map(c => (
-            <div key={c._id} className="student-card" style={{ cursor: "default" }}>
+            <div key={c._id} className="sd-action-card" style={{ cursor: "default" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
                 <span style={{ background: "#d1fae5", color: "#065f46", padding: "3px 10px", borderRadius: "20px", fontSize: "11px", fontWeight: "700" }}>
                   {c.category}
