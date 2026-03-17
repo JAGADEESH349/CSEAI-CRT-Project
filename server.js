@@ -15,7 +15,6 @@ const PoliceWhitelist = require("./models/PoliceWhitelist");
 
 const app = express();
 
-// ✅ FIX 3: Auto-create uploads folder if missing (fixes Render ephemeral filesystem crash)
 if (!fs.existsSync("uploads")) {
   fs.mkdirSync("uploads");
   console.log("Created uploads/ directory");
@@ -54,20 +53,28 @@ mongoose.connect(process.env.MONGO_URI)
 /* REGISTER */
 app.post("/register", async (req, res) => {
   try {
-    let { username, password, rollNo } = req.body;
-    username = username.trim();
-    if (!username || !password)
+    // ✅ FIX 1: Safe null check BEFORE trim — prevents 500 crash
+    const rawUsername = req.body.username;
+    const rawPassword = req.body.password;
+    const rollNo      = req.body.rollNo || "";
+
+    if (!rawUsername || !rawPassword)
       return res.status(400).json({ message: "Username and password are required" });
+
+    const username = String(rawUsername).trim();
+    const password = String(rawPassword);
+
+    if (!username)
+      return res.status(400).json({ message: "Username cannot be empty" });
     if (password.length < 6)
       return res.status(400).json({ message: "Password must be at least 6 characters" });
 
-    const role = "student";
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({ username, password: hashedPassword, role, rollNo: rollNo || "" });
+    const user = new User({ username, password: hashedPassword, role: "student", rollNo });
     await user.save();
     res.json({ message: "User registered successfully" });
   } catch (err) {
-    console.log(err);
+    console.log("Register error:", err);
     if (err.code === 11000)
       return res.status(409).json({ message: "Username already taken. Please choose another." });
     res.status(500).json({ message: "Registration failed. Please try again." });
@@ -77,11 +84,21 @@ app.post("/register", async (req, res) => {
 /* LOGIN */
 app.post("/login", async (req, res) => {
   try {
-    const { username, password, accessCode } = req.body;
-    if (!username || !password)
+    const rawUsername = req.body.username;
+    const rawPassword = req.body.password;
+    const accessCode  = req.body.accessCode;
+
+    if (!rawUsername || !rawPassword)
       return res.status(400).json({ message: "Username and password are required" });
 
-    const user = await User.findOne({ username: username.trim() });
+    const username = String(rawUsername).trim();
+    const password = String(rawPassword);
+
+    // ✅ FIX 2: Find by username OR rollNo so students can login with either
+    let user = await User.findOne({ username });
+    if (!user) {
+      user = await User.findOne({ rollNo: username });
+    }
     if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
     const validPassword = await bcrypt.compare(password, user.password);
@@ -90,7 +107,7 @@ app.post("/login", async (req, res) => {
     if (user.role === "police") {
       if (!accessCode || accessCode !== POLICE_ACCESS_CODE)
         return res.status(403).json({ message: "Invalid access code" });
-      const whitelisted = await PoliceWhitelist.findOne({ username: username.trim() });
+      const whitelisted = await PoliceWhitelist.findOne({ username: user.username });
       if (!whitelisted)
         return res.status(403).json({ message: "Officer not authorized. Contact administration." });
     }
@@ -168,10 +185,7 @@ app.patch("/complaints/:id/student-update", authenticateToken, authorizeRole("st
     if (!complaint)
       return res.status(403).json({ message: "Not authorized to edit this complaint" });
 
-    const allowedFields = [
-      "title", "description", "incidentLocation", "incidentDate",
-      "phoneNumber", "witnessDetails", "accusedName", "injuryDetails"
-    ];
+    const allowedFields = ["title","description","incidentLocation","incidentDate","phoneNumber","witnessDetails","accusedName","injuryDetails"];
     const update = {};
     allowedFields.forEach(f => { if (req.body[f] !== undefined) update[f] = req.body[f]; });
 

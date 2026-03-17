@@ -9,10 +9,12 @@ function StudentLogin() {
   const navigate = useNavigate();
   const [flipped, setFlipped] = useState(false);
 
-  const [loginUser, setLoginUser]   = useState("");
+  // Login state — ✅ FIX 3: students login with Roll Number now
+  const [loginRoll, setLoginRoll]   = useState("");
   const [loginPass, setLoginPass]   = useState("");
   const [loginError, setLoginError] = useState("");
 
+  // Register state
   const [regUser, setRegUser]   = useState("");
   const [regRoll, setRegRoll]   = useState("");
   const [regPass, setRegPass]   = useState("");
@@ -23,7 +25,8 @@ function StudentLogin() {
     e.preventDefault();
     setLoginError("");
     try {
-      const res = await axios.post(`${API_URL}/login`, { username: loginUser, password: loginPass });
+      // Send rollNo as "username" — server will find by rollNo OR username
+      const res = await axios.post(`${API_URL}/login`, { username: loginRoll, password: loginPass });
       if (res.data.role !== "student") {
         setLoginError("Access denied. Use the Police portal.");
         return;
@@ -32,7 +35,7 @@ function StudentLogin() {
       localStorage.setItem("role", res.data.role);
       navigate("/student");
     } catch {
-      setLoginError("Invalid username or password");
+      setLoginError("Invalid Roll Number or password");
     }
   };
 
@@ -42,9 +45,9 @@ function StudentLogin() {
     if (!regUser || !regRoll || !regPass) { setRegError("Please fill all fields"); return; }
     try {
       await axios.post(`${API_URL}/register`, { username: regUser, rollNo: regRoll, password: regPass });
-      setRegMsg("Account created! Please login.");
+      setRegMsg("Account created! Please login with your Roll Number.");
       setRegUser(""); setRegRoll(""); setRegPass("");
-      setTimeout(() => { setFlipped(false); setRegMsg(""); }, 1800);
+      setTimeout(() => { setFlipped(false); setRegMsg(""); }, 2000);
     } catch (err) {
       setRegError(err.response?.data?.message || "Registration failed");
     }
@@ -57,12 +60,10 @@ function StudentLogin() {
     <div className="sl-container">
       <div className="sl-overlay" />
 
-      {/* ✅ FIX 1: Back button goes to landing — always visible, never hidden */}
       <button className="sl-back-btn" onClick={() => navigate("/")}>
         <FaArrowLeft /> Back
       </button>
 
-      {/* ✅ FIX 2: On mobile use show/hide instead of 3D flip to prevent cut-off */}
       <div className="sl-wrapper">
 
         {/* LOGIN PANEL */}
@@ -76,10 +77,11 @@ function StudentLogin() {
           {loginError && <div className="sl-error">{loginError}</div>}
 
           <form onSubmit={handleLogin}>
+            {/* ✅ FIX 3: Login with Roll Number */}
             <div className="sl-field">
-              <FaUser className="sl-field-icon" />
-              <input className="sl-input" type="text" placeholder="Username"
-                value={loginUser} required onChange={e => setLoginUser(e.target.value)} />
+              <FaIdCard className="sl-field-icon" />
+              <input className="sl-input" type="text" placeholder="Roll Number (e.g. 22A91A6101)"
+                value={loginRoll} required onChange={e => setLoginRoll(e.target.value)} />
             </div>
             <div className="sl-field">
               <FaLock className="sl-field-icon" />
@@ -125,7 +127,6 @@ function StudentLogin() {
             <button type="submit" className="sl-btn sl-btn--green">Register</button>
           </form>
 
-          {/* ✅ FIX 3: Proper back button INSIDE register panel — always visible */}
           <button className="sl-back-to-login-btn" onClick={flipToLogin}>
             <FaArrowLeft /> Back to Login
           </button>
